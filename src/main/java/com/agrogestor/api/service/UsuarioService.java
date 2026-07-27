@@ -3,7 +3,6 @@ package com.agrogestor.api.service;
 
 import com.agrogestor.api.dto.UsuarioCadastroDTO;
 import com.agrogestor.api.model.CadastroPendente;
-import com.agrogestor.api.model.Usuario;
 import com.agrogestor.api.repository.CadastroPendenteRepository;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
