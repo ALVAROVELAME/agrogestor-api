@@ -56,6 +56,12 @@
 			<scope>test</scope>
 		</dependency>
 
+		<!-- Segurança e BCrypt -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-security</artifactId>
+		</dependency>
+
 	</dependencies>
 
 	<build>
