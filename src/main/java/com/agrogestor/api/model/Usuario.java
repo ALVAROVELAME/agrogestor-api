@@ -27,12 +27,21 @@ public class Usuario {
 
 
     @Column(nullable = false)
-    private Boolean ativo = true;
+    private Boolean ativo = false;
+
+
+    @Column(unique = true)
+    private String tokenConfirmacao;
+
+
+    private LocalDateTime tokenExpiraEm;
+
+
+    private LocalDateTime emailConfirmadoEm;
 
 
     @Column(nullable = false)
     private LocalDateTime criadoEm;
-
 
 
     public Usuario() {
@@ -40,16 +49,19 @@ public class Usuario {
     }
 
 
-
-    public Usuario(String nome, String email, String senhaHash) {
+    public Usuario(
+            String nome,
+            String email,
+            String senhaHash
+    ){
 
         this.nome = nome;
         this.email = email;
         this.senhaHash = senhaHash;
+        this.ativo = false;
         this.criadoEm = LocalDateTime.now();
 
     }
-
 
 
     public Long getId() {
@@ -59,6 +71,11 @@ public class Usuario {
 
     public String getNome() {
         return nome;
+    }
+
+
+    public void setNome(String nome) {
+        this.nome = nome;
     }
 
 
@@ -74,6 +91,41 @@ public class Usuario {
 
     public Boolean getAtivo() {
         return ativo;
+    }
+
+
+    public void ativarConta(){
+
+        this.ativo = true;
+        this.emailConfirmadoEm = LocalDateTime.now();
+        this.tokenConfirmacao = null;
+        this.tokenExpiraEm = null;
+
+    }
+
+
+    public String getTokenConfirmacao() {
+        return tokenConfirmacao;
+    }
+
+
+    public void setTokenConfirmacao(String tokenConfirmacao) {
+        this.tokenConfirmacao = tokenConfirmacao;
+    }
+
+
+    public LocalDateTime getTokenExpiraEm() {
+        return tokenExpiraEm;
+    }
+
+
+    public void setTokenExpiraEm(LocalDateTime tokenExpiraEm) {
+        this.tokenExpiraEm = tokenExpiraEm;
+    }
+
+
+    public LocalDateTime getEmailConfirmadoEm() {
+        return emailConfirmadoEm;
     }
 
 
