@@ -1,0 +1,21 @@
+services:
+
+  agrogestor_api:
+
+    build: .
+
+    container_name: agrogestor_api
+
+    env_file:
+      - .env
+
+    ports:
+      - "127.0.0.1:3002:8080"
+
+    restart: unless-stopped
+
+    deploy:
+      resources:
+        limits:
+          memory: 300M
+          cpus: "0.50"
