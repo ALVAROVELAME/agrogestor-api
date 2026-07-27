@@ -28,7 +28,7 @@ public class CadastroPendente {
 
 
     @Column(nullable = false, unique = true)
-    private String token;
+    private String tokenConfirmacao;
 
 
     @Column(nullable = false)
@@ -50,13 +50,13 @@ public class CadastroPendente {
             String nome,
             String email,
             String senhaHash,
-            String token
+            String tokenConfirmacao
     ){
 
         this.nome = nome;
         this.email = email;
         this.senhaHash = senhaHash;
-        this.token = token;
+        this.tokenConfirmacao = tokenConfirmacao;
         this.tokenExpiraEm = LocalDateTime.now().plusHours(24);
         this.criadoEm = LocalDateTime.now();
 
@@ -84,8 +84,8 @@ public class CadastroPendente {
     }
 
 
-    public String getToken(){
-        return token;
+    public String getTokenConfirmacao(){
+        return tokenConfirmacao;
     }
 
 
