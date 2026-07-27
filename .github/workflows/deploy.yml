@@ -1,0 +1,183 @@
+name: Deploy Agrogestor API
+
+
+on:
+
+  push:
+
+    branches:
+      - main
+
+
+
+jobs:
+
+
+  deploy:
+
+
+    runs-on: self-hosted
+
+
+
+    steps:
+
+
+
+      - name: Verificar ambiente da VM
+
+        run: |
+
+          whoami
+
+          docker --version
+
+          docker compose version
+
+          free -h
+
+          df -h
+
+          docker system df
+
+
+
+
+
+      - name: Atualizar projeto na VM
+
+        run: |
+
+          cd /srv/apps
+
+
+          if [ ! -d "agrogestor-api" ]; then
+
+            git clone https://github.com/ALVAROVELAME/agrogestor-api.git
+
+          fi
+
+
+          cd agrogestor-api
+
+
+          git fetch origin main
+
+          git reset --hard origin/main
+
+
+
+
+
+      - name: Validar arquivos do projeto
+
+        run: |
+
+          cd /srv/apps/agrogestor-api
+
+
+          test -f Dockerfile
+
+          test -f docker-compose.yml
+
+          test -f pom.xml
+
+
+          echo "Arquivos principais encontrados"
+
+
+
+
+
+      - name: Verificar container atual
+
+        run: |
+
+          docker ps
+
+          docker inspect agrogestor_api >/dev/null 2>&1 || true
+
+
+
+
+
+      - name: Parar container antigo
+
+        run: |
+
+          cd /srv/apps/agrogestor-api
+
+
+          docker compose down || true
+
+
+
+
+
+      - name: Construir nova imagem Docker
+
+        run: |
+
+          cd /srv/apps/agrogestor-api
+
+
+          docker compose build
+
+
+
+
+
+      - name: Iniciar nova versão
+
+        run: |
+
+          cd /srv/apps/agrogestor-api
+
+
+          docker compose up -d
+
+
+
+
+
+      - name: Aguardar inicialização
+
+        run: |
+
+          sleep 15
+
+
+
+
+
+      - name: Verificar container
+
+        run: |
+
+          docker ps
+
+
+          docker logs --tail 50 agrogestor_api
+
+
+
+
+
+      - name: Testar API
+
+        run: |
+
+          curl --fail http://localhost:3002/ || exit 1
+
+
+          echo "API Agrogestor funcionando"
+
+
+
+
+
+      - name: Limpar imagens antigas
+
+        run: |
+
+          docker image prune -f
