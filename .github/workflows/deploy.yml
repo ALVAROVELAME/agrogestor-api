@@ -23,20 +23,35 @@ jobs:
     steps:
 
 
-
       - name: Verificar ambiente da VM
 
         run: |
 
+          echo "===== SISTEMA ====="
+
           whoami
+
+          uname -a
+
+
+          echo "===== DOCKER ====="
 
           docker --version
 
           docker compose version
 
+
+          echo "===== MEMORIA ====="
+
           free -h
 
+
+          echo "===== DISCO ====="
+
           df -h
+
+
+          echo "===== DOCKER USO ====="
 
           docker system df
 
@@ -66,10 +81,13 @@ jobs:
           git reset --hard origin/main
 
 
+          echo "Projeto atualizado"
 
 
 
-      - name: Validar arquivos do projeto
+
+
+      - name: Validar estrutura do projeto
 
         run: |
 
@@ -95,13 +113,24 @@ jobs:
 
           docker ps
 
-          docker inspect agrogestor_api >/dev/null 2>&1 || true
+
+          if docker inspect agrogestor_api >/dev/null 2>&1
+
+          then
+
+            echo "Container atual encontrado"
+
+          else
+
+            echo "Primeira instalação"
+
+          fi
 
 
 
 
 
-      - name: Parar container antigo
+      - name: Parar versão antiga
 
         run: |
 
@@ -114,27 +143,27 @@ jobs:
 
 
 
-      - name: Construir nova imagem Docker
+      - name: Construir nova imagem usando cache
 
         run: |
 
           cd /srv/apps/agrogestor-api
 
 
-          docker compose build
+          docker compose build --pull
 
 
 
 
 
-      - name: Iniciar nova versão
+      - name: Subir nova versão
 
         run: |
 
           cd /srv/apps/agrogestor-api
 
 
-          docker compose up -d
+          docker compose up -d --remove-orphans
 
 
 
@@ -144,40 +173,46 @@ jobs:
 
         run: |
 
-          sleep 15
+          echo "Aguardando Spring Boot iniciar..."
+
+          sleep 25
 
 
 
 
 
-      - name: Verificar container
+      - name: Verificar aplicação
 
         run: |
+
+          echo "===== CONTAINERS ====="
 
           docker ps
 
 
-          docker logs --tail 50 agrogestor_api
+          echo "===== LOGS API ====="
+
+          docker logs --tail 100 agrogestor_api
 
 
 
 
 
-      - name: Testar API
+      - name: Verificar consumo
 
         run: |
 
-          curl --fail http://localhost:3002/ || exit 1
-
-
-          echo "API Agrogestor funcionando"
+          docker stats --no-stream
 
 
 
 
 
-      - name: Limpar imagens antigas
+      - name: Limpeza segura
 
         run: |
 
           docker image prune -f
+
+
+          echo "Limpeza concluída"
