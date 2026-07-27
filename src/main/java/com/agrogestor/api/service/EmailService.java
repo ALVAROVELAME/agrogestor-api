@@ -13,23 +13,31 @@ public class EmailService {
         this.mailSender = mailSender;
     }
 
+
     public void enviarEmailConfirmacao(
             String email,
             String nome,
             String token
     ) {
 
+
         String link =
                 "https://agrogestor-api.duckdns.org/api/auth/confirmar?token="
                         + token;
 
+
         SimpleMailMessage mensagem = new SimpleMailMessage();
 
+
+        mensagem.setFrom("SEU_EMAIL_REMETENTE_VERIFICADO");
+
         mensagem.setTo(email);
+
 
         mensagem.setSubject(
                 "Confirmação de cadastro - AgroGestor"
         );
+
 
         mensagem.setText(
                 """
@@ -49,6 +57,7 @@ public class EmailService {
                 """
                         .formatted(nome, link)
         );
+
 
         mailSender.send(mensagem);
 
