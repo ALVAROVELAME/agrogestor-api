@@ -13,67 +13,47 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
 
     private final EmailConfirmationService emailConfirmationService;
-
     private final AuthService authService;
-
-
 
     public AuthController(
             EmailConfirmationService emailConfirmationService,
             AuthService authService
-    ){
+    ) {
 
         this.emailConfirmationService = emailConfirmationService;
         this.authService = authService;
 
     }
 
-
-
     @PostMapping("/login")
     public ResponseEntity<LoginRespostaDTO> login(
             @RequestBody LoginDTO dto
-    ){
+    ) {
 
-        boolean autenticado =
-                authService.autenticar(dto);
+        String resultado = authService.autenticar(dto);
 
-
-
-        if(!autenticado){
+        if (!resultado.equals("Login realizado com sucesso")) {
 
             return ResponseEntity.badRequest()
-                    .body(
-                            new LoginRespostaDTO(
-                                    "Email ou senha inválidos"
-                            )
-                    );
+                    .body(new LoginRespostaDTO(resultado));
 
         }
 
-
-
         return ResponseEntity.ok(
-                new LoginRespostaDTO(
-                        "Login realizado com sucesso"
-                )
+                new LoginRespostaDTO(resultado)
         );
 
     }
 
-
-
     @GetMapping("/confirmar")
     public ResponseEntity<String> confirmarEmail(
             @RequestParam String token
-    ){
+    ) {
 
         boolean confirmado =
                 emailConfirmationService.confirmarEmail(token);
 
-
-
-        if(confirmado){
+        if (confirmado) {
 
             return ResponseEntity.ok(
                     "Email confirmado com sucesso"
@@ -81,12 +61,8 @@ public class AuthController {
 
         }
 
-
-
         return ResponseEntity.badRequest()
-                .body(
-                        "Token inválido ou expirado"
-                );
+                .body("Token inválido ou expirado");
 
     }
 
