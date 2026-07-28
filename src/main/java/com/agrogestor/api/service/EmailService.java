@@ -1,5 +1,6 @@
 package com.agrogestor.api.service;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
@@ -8,6 +9,9 @@ import org.springframework.stereotype.Service;
 public class EmailService {
 
     private final JavaMailSender mailSender;
+
+    @Value("${MAIL_FROM}")
+    private String mailFrom;
 
     public EmailService(JavaMailSender mailSender) {
         this.mailSender = mailSender;
@@ -20,7 +24,6 @@ public class EmailService {
             String token
     ) {
 
-
         String link =
                 "https://agrogestor-api.duckdns.org/api/auth/confirmar?token="
                         + token;
@@ -29,7 +32,7 @@ public class EmailService {
         SimpleMailMessage mensagem = new SimpleMailMessage();
 
 
-        mensagem.setFrom("SEU_EMAIL_REMETENTE_VERIFICADO");
+        mensagem.setFrom(mailFrom);
 
         mensagem.setTo(email);
 
