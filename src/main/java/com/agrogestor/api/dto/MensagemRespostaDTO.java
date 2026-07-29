@@ -1,7 +1,7 @@
 package com.agrogestor.api.dto;
 
 
-public class LoginRespostaDTO {
+public class MensagemRespostaDTO {
 
 
     private boolean sucesso;
@@ -10,7 +10,7 @@ public class LoginRespostaDTO {
 
 
 
-    public LoginRespostaDTO(
+    public MensagemRespostaDTO(
             boolean sucesso,
             String mensagem
     ){

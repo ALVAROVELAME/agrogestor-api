@@ -8,12 +8,17 @@ import com.agrogestor.api.service.EmailConfirmationService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
 
+
     private final EmailConfirmationService emailConfirmationService;
+
     private final AuthService authService;
+
+
 
     public AuthController(
             EmailConfirmationService emailConfirmationService,
@@ -25,45 +30,79 @@ public class AuthController {
 
     }
 
+
+
     @PostMapping("/login")
     public ResponseEntity<LoginRespostaDTO> login(
             @RequestBody LoginDTO dto
     ) {
 
-        String resultado = authService.autenticar(dto);
 
-        if (!resultado.equals("Login realizado com sucesso")) {
+        String resultado =
+                authService.autenticar(dto);
+
+
+
+        if(!resultado.equals("OK")) {
+
 
             return ResponseEntity.badRequest()
-                    .body(new LoginRespostaDTO(resultado));
+                    .body(
+                            new LoginRespostaDTO(
+                                    false,
+                                    resultado
+                            )
+                    );
 
         }
 
+
+
         return ResponseEntity.ok(
-                new LoginRespostaDTO(resultado)
+                new LoginRespostaDTO(
+                        true,
+                        "Login realizado com sucesso"
+                )
         );
 
     }
 
+
+
     @GetMapping("/confirmar")
-    public ResponseEntity<String> confirmarEmail(
+    public ResponseEntity<LoginRespostaDTO> confirmarEmail(
             @RequestParam String token
     ) {
+
 
         boolean confirmado =
                 emailConfirmationService.confirmarEmail(token);
 
-        if (confirmado) {
+
+
+        if(confirmado) {
+
 
             return ResponseEntity.ok(
-                    "Email confirmado com sucesso"
+                    new LoginRespostaDTO(
+                            true,
+                            "Email confirmado com sucesso"
+                    )
             );
 
         }
 
+
+
         return ResponseEntity.badRequest()
-                .body("Token inválido ou expirado");
+                .body(
+                        new LoginRespostaDTO(
+                                false,
+                                "Token inválido ou expirado"
+                        )
+                );
 
     }
+
 
 }
