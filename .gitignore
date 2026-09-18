@@ -1,4 +1,4 @@
-HELP.md
+﻿HELP.md
 target/
 .mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
@@ -34,3 +34,15 @@ build/
 
 # Environment
 .env
+
+# Adicionado automaticamente
+application-local.yml
+application-local.properties
+.idea/
+.DS_Store
+Thumbs.db
+
+
+# Logs
+build.log
+*.log
