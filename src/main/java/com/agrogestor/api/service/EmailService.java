@@ -13,34 +13,31 @@ public class EmailService {
     @Value("${MAIL_FROM}")
     private String mailFrom;
 
+    /**
+     * URL base do frontend (ex: https://agrogestor-br.vercel.app).
+     * Vem da variável de ambiente APP_FRONTEND_URL.
+     */
+    @Value("${app.frontend-url}")
+    private String frontendUrl;
+
     public EmailService(JavaMailSender mailSender) {
         this.mailSender = mailSender;
     }
-
 
     public void enviarEmailConfirmacao(
             String email,
             String nome,
             String token
     ) {
-
-        String link =
-                "https://agrogestor-api.duckdns.org/api/auth/confirmar?token="
-                        + token;
-
+        // ✅ Link aponta para o FRONTEND (que trata e mostra a página de status)
+        String link = frontendUrl + "/confirmar?token=" + token;
 
         SimpleMailMessage mensagem = new SimpleMailMessage();
 
-
         mensagem.setFrom(mailFrom);
-
         mensagem.setTo(email);
 
-
-        mensagem.setSubject(
-                "Confirmação de cadastro - AgroGestor"
-        );
-
+        mensagem.setSubject("Confirmação de cadastro - AgroGestor");
 
         mensagem.setText(
                 """
@@ -61,9 +58,6 @@ public class EmailService {
                         .formatted(nome, link)
         );
 
-
         mailSender.send(mensagem);
-
     }
-
 }
