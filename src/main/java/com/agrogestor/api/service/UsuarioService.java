@@ -5,7 +5,6 @@ import com.agrogestor.api.model.CadastroPendente;
 import com.agrogestor.api.model.Usuario;
 import com.agrogestor.api.repository.AnimalRepository;
 import com.agrogestor.api.repository.CadastroPendenteRepository;
-import com.agrogestor.api.repository.NomeRepository;
 import com.agrogestor.api.repository.UsuarioRepository;
 
 import org.springframework.security.authentication.BadCredentialsException;
@@ -21,7 +20,6 @@ public class UsuarioService {
     private final CadastroPendenteRepository cadastroPendenteRepository;
     private final UsuarioRepository usuarioRepository;
     private final AnimalRepository animalRepository;
-    private final NomeRepository nomeRepository;
     private final PasswordEncoder passwordEncoder;
     private final EmailService emailService;
 
@@ -29,14 +27,12 @@ public class UsuarioService {
             CadastroPendenteRepository cadastroPendenteRepository,
             UsuarioRepository usuarioRepository,
             AnimalRepository animalRepository,
-            NomeRepository nomeRepository,
             PasswordEncoder passwordEncoder,
             EmailService emailService
     ) {
         this.cadastroPendenteRepository = cadastroPendenteRepository;
         this.usuarioRepository = usuarioRepository;
         this.animalRepository = animalRepository;
-        this.nomeRepository = nomeRepository;
         this.passwordEncoder = passwordEncoder;
         this.emailService = emailService;
     }
@@ -73,7 +69,7 @@ public class UsuarioService {
     }
 
     /**
-     * Exclui a conta do usuário e todos os dados vinculados (animais e nomes).
+     * Exclui a conta do usuário e todos os dados vinculados (animais).
      * Exige a senha atual para confirmar a operação.
      */
     @Transactional
@@ -86,9 +82,8 @@ public class UsuarioService {
 
         Long usuarioId = usuario.getId();
 
-        // 2. Remove dependências (animais e nomes)
+        // 2. Remove dependências (animais)
         animalRepository.deleteByUsuarioId(usuarioId);
-        nomeRepository.deleteByUsuarioId(usuarioId);
 
         // 3. Remove cadastros pendentes com o mesmo e-mail (se houver)
         cadastroPendenteRepository.findByEmail(usuario.getEmail())
