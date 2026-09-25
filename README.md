@@ -1,39 +1,43 @@
-<div align="center">
-
 # 🐄 AgroGestor API
 
 ### Backend REST para gestão de rebanho leiteiro
 
-API em Spring Boot com autenticação JWT, confirmação de e-mail e isolamento multi-tenant por usuário.
+API REST desenvolvida com Spring Boot para gerenciamento de rebanho leiteiro, com autenticação JWT, confirmação de e-mail e isolamento de dados por usuário.
 
-[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-4.0.7-6DB33F?logo=springboot&logoColor=white)](https://spring.io/projects/spring-boot)
-[![Java](https://img.shields.io/badge/Java-17-ED8B00?logo=openjdk&logoColor=white)](https://openjdk.org)
-[![MariaDB](https://img.shields.io/badge/MariaDB-11-003545?logo=mariadb&logoColor=white)](https://mariadb.org)
-[![JWT](https://img.shields.io/badge/JWT-jjwt--0.12.6-000000?logo=jsonwebtokens&logoColor=white)](https://github.com/jwtk/jjwt)
-[![Docker](https://img.shields.io/badge/Docker-ready-2496ED?logo=docker&logoColor=white)](https://www.docker.com)
-[![License](https://img.shields.io/badge/license-MIT-green)](./LICENSE)
+[Spring Boot](https://spring.io/projects/spring-boot) ([image](https://img.shields.io/badge/Spring%20Boot-4.0.7-6DB33F?logo=springboot&logoColor=white))
+[Java](https://openjdk.org/) ([image](https://img.shields.io/badge/Java-17-ED8B00?logo=openjdk&logoColor=white))
+[MariaDB](https://mariadb.org/) ([image](https://img.shields.io/badge/MariaDB-11-003545?logo=mariadb&logoColor=white))
+[JWT](https://github.com/jwtk/jjwt) ([image](https://img.shields.io/badge/JWT-jjwt--0.12.6-000000?logo=jsonwebtokens&logoColor=white))
+[Docker](https://www.docker.com/) ([image](https://img.shields.io/badge/Docker-ready-2496ED?logo=docker&logoColor=white))
 
-[🌐 API em produção](https://agrogestor-api.duckdns.org) · [📘 Swagger UI](https://agrogestor-api.duckdns.org/swagger-ui.html)
-
-</div>
+[🌐 API em produção](https://agrogestor-api.duckdns.org/) · [📘 Swagger UI](https://agrogestor-api.duckdns.org/swagger-ui.html)
 
 ---
 
 ## 📖 Sobre o projeto
 
-O **AgroGestor API** é o backend do sistema AgroGestor — uma aplicação de gestão de rebanho leiteiro. Fornece endpoints REST para autenticação, cadastro de usuários, confirmação de e-mail e CRUD de animais, com isolamento total de dados entre contas.
+O **AgroGestor API** é o backend do sistema AgroGestor, uma aplicação voltada à gestão de rebanho leiteiro.
+
+A API fornece recursos para autenticação, cadastro de usuários, confirmação de e-mail e gerenciamento de animais, utilizando uma arquitetura REST organizada em camadas e isolamento de dados por usuário.
+
+Além da aplicação, o projeto possui uma infraestrutura de produção baseada em **máquinas virtuais, Docker, Nginx, banco de dados separado, HTTPS com renovação automatizada de certificados e pipeline de deploy automatizado**.
 
 ### Diferenciais
 
-- 🔐 **JWT stateless** com filtro de autenticação customizado
-- 📧 **Confirmação de e-mail** com token expirável (24h)
-- 🛡️ **Multi-tenant seguro** — cada usuário só enxerga seus próprios dados
-- 🗄️ **JPA + Hibernate** com `ddl-auto: update` para evolução do schema
-- 📚 **Swagger/OpenAPI 3.1** auto-gerado
-- 🐳 **Docker pronto** com limitação de memória (300M) e CPU (0.5)
-- 🚀 **Deploy automatizado** via GitHub Actions + self-hosted runner
-- ✅ **Validação de entrada** com Bean Validation
-- 🎯 **Tratamento global de exceções** com respostas padronizadas
+* 🔐 **JWT stateless** com filtro de autenticação customizado
+* 📧 **Confirmação de e-mail** com token expirável
+* 🛡️ **Isolamento de dados por usuário**
+* 🗄️ **JPA + Hibernate** para persistência
+* 📚 **Swagger/OpenAPI** para documentação interativa
+* 🐳 **Docker** para containerização
+* ☁️ **Infraestrutura virtualizada** com separação entre aplicação e dados
+* 🌐 **Nginx como reverse proxy**
+* 🔒 **HTTPS com certificados Let's Encrypt**
+* ♻️ **Renovação automática de certificados através do Certbot**
+* 🚀 **Deploy automatizado** com GitHub Actions
+* ✅ **Bean Validation** para validação de entrada
+* 🎯 **Tratamento global de exceções**
+* 🔑 **Segredos mantidos fora do código-fonte**
 
 ---
 
@@ -41,71 +45,303 @@ O **AgroGestor API** é o backend do sistema AgroGestor — uma aplicação de g
 
 ### Autenticação e conta
 
-- ✅ Cadastro com validação (nome, e-mail, senha)
-- ✅ Confirmação de e-mail por token único (expira em 24h)
-- ✅ Login com JWT (expiração configurável)
-- ✅ Endpoint `/me` para consultar usuário logado
-- ✅ Exclusão de conta com confirmação por senha
-- ✅ Senhas armazenadas com **BCrypt**
+* ✅ Cadastro com validação de nome, e-mail e senha
+* ✅ Confirmação de e-mail por token único
+* ✅ Expiração do token de confirmação
+* ✅ Login com JWT
+* ✅ Endpoint `/me` para consultar o usuário autenticado
+* ✅ Exclusão de conta mediante confirmação por senha
+* ✅ Senhas armazenadas com **BCrypt**
 
-### Rebanho (animais)
+### Rebanho
 
-- ✅ Listagem por usuário autenticado
-- ✅ Criação com validação completa
-- ✅ Atualização por ID
-- ✅ Exclusão por ID
-- ✅ Isolamento automático: usuário nunca vê animal de outro
-
----
-
-## 🛠 Stack técnica
-
-### Core
-
-| Tecnologia | Versão | Uso |
-|---|---|---|
-| [Spring Boot](https://spring.io/projects/spring-boot) | 4.0.7 | Framework |
-| [Java](https://openjdk.org) | 17 | Linguagem |
-| [Spring Web MVC](https://docs.spring.io/spring-framework/reference/web/webmvc.html) | — | Camada REST |
-| [Spring Data JPA](https://spring.io/projects/spring-data-jpa) | — | Persistência |
-| [Hibernate](https://hibernate.org) | 6.x | ORM |
-| [MariaDB JDBC](https://mariadb.com/kb/en/about-mariadb-connector-j/) | — | Driver |
-
-### Segurança e autenticação
-
-| Tecnologia | Versão | Uso |
-|---|---|---|
-| [Spring Security](https://spring.io/projects/spring-security) | — | Filtros de auth |
-| [JJWT](https://github.com/jwtk/jjwt) | 0.12.6 | Geração/validação JWT |
-| [BCrypt](https://en.wikipedia.org/wiki/Bcrypt) | — | Hash de senhas |
-
-### Comunicação
-
-| Tecnologia | Versão | Uso |
-|---|---|---|
-| [Spring Mail](https://docs.spring.io/spring-framework/reference/integration/email.html) | — | Envio de e-mails |
-| [SpringDoc OpenAPI](https://springdoc.org) | 2.8.6 | Swagger UI |
-| [Bean Validation](https://beanvalidation.org) | — | Validação de DTOs |
-
-### DevOps
-
-| Ferramenta | Uso |
-|---|---|
-| [Maven Wrapper](https://maven.apache.org/wrapper/) | Build reproduzível |
-| [Docker](https://www.docker.com) | Containerização |
-| [Docker Compose](https://docs.docker.com/compose/) | Orquestração local |
-| [GitHub Actions](https://github.com/features/actions) | CI/CD com self-hosted runner |
+* ✅ Listagem de animais do usuário autenticado
+* ✅ Criação de animais com validação
+* ✅ Atualização por ID
+* ✅ Exclusão por ID
+* ✅ Isolamento de dados entre usuários
 
 ---
 
-## 📁 Estrutura do projeto
+# 🛠️ Stack técnica
 
+## Core
+
+| Tecnologia                                                                          | Versão | Uso                 |
+| ----------------------------------------------------------------------------------- | -----: | ------------------- |
+| [Spring Boot](https://spring.io/projects/spring-boot)                               |  4.0.7 | Framework principal |
+| [Java](https://openjdk.org/)                                                        |     17 | Linguagem           |
+| [Spring Web MVC](https://docs.spring.io/spring-framework/reference/web/webmvc.html) |      — | Camada REST         |
+| [Spring Data JPA](https://spring.io/projects/spring-data-jpa)                       |      — | Persistência        |
+| [Hibernate](https://hibernate.org/)                                                 |    6.x | ORM                 |
+| [MariaDB Connector/J](https://mariadb.com/kb/en/about-mariadb-connector-j/)         |      — | Driver JDBC         |
+
+## Segurança e autenticação
+
+| Tecnologia                                                    | Versão | Uso                        |
+| ------------------------------------------------------------- | -----: | -------------------------- |
+| [Spring Security](https://spring.io/projects/spring-security) |      — | Segurança e filtros        |
+| [JJWT](https://github.com/jwtk/jjwt)                          | 0.12.6 | Geração e validação de JWT |
+| [BCrypt](https://en.wikipedia.org/wiki/Bcrypt)                |      — | Hash de senhas             |
+
+## Comunicação e documentação
+
+| Tecnologia                                                                              | Versão | Uso                  |
+| --------------------------------------------------------------------------------------- | -----: | -------------------- |
+| [Spring Mail](https://docs.spring.io/spring-framework/reference/integration/email.html) |      — | Envio de e-mails     |
+| [SpringDoc OpenAPI](https://springdoc.org/)                                             |  2.8.6 | Swagger UI / OpenAPI |
+| [Bean Validation](https://beanvalidation.org/)                                          |      — | Validação de DTOs    |
+
+## DevOps e infraestrutura
+
+| Tecnologia                                            | Uso                                           |
+| ----------------------------------------------------- | --------------------------------------------- |
+| [Maven Wrapper](https://maven.apache.org/wrapper/)    | Build reproduzível                            |
+| [Docker](https://www.docker.com/)                     | Containerização                               |
+| [Docker Compose](https://docs.docker.com/compose/)    | Orquestração                                  |
+| [Nginx](https://nginx.org/)                           | Reverse proxy                                 |
+| [Certbot](https://certbot.eff.org/)                   | Gerenciamento e renovação de certificados TLS |
+| Let's Encrypt                                         | Emissão de certificados HTTPS                 |
+| [GitHub Actions](https://github.com/features/actions) | CI/CD                                         |
+| Self-hosted Runner                                    | Execução automatizada do deploy               |
+| KVM                                                   | Virtualização das máquinas                    |
+
+---
+
+# ☁️ Arquitetura de produção
+
+A infraestrutura de produção foi organizada em duas camadas principais:
+
+```text
+                         INTERNET
+                             │
+                             ▼
+                  ┌─────────────────────┐
+                  │       Nginx         │
+                  │   Reverse Proxy     │
+                  │     HTTP / HTTPS    │
+                  └──────────┬──────────┘
+                             │
+                             ▼
+                  ┌─────────────────────┐
+                  │    VM DE APIs       │
+                  │                     │
+                  │      Docker         │
+                  │                     │
+                  │  ┌───────────────┐  │
+                  │  │ AgroGestor    │  │
+                  │  │ API           │  │
+                  │  └───────────────┘  │
+                  │                     │
+                  │  Outros serviços    │
+                  │  independentes      │
+                  └──────────┬──────────┘
+                             │
+                      Rede privada
+                             │
+                             ▼
+                  ┌─────────────────────┐
+                  │    VM DE DADOS      │
+                  │                     │
+                  │      Docker         │
+                  │                     │
+                  │  ┌───────────────┐  │
+                  │  │   MariaDB     │  │
+                  │  └───────────────┘  │
+                  │                     │
+                  │  ┌───────────────┐  │
+                  │  │   MongoDB     │  │
+                  │  └───────────────┘  │
+                  └─────────────────────┘
 ```
+
+### Separação de responsabilidades
+
+A infraestrutura separa a camada de aplicação da camada de persistência:
+
+```text
+Aplicação
+   │
+   ├── API REST
+   ├── Autenticação
+   ├── Regras de negócio
+   └── Documentação
+          │
+          ▼
+      Persistência
+          │
+          ├── MariaDB
+          └── MongoDB
+```
+
+Essa organização reduz o acoplamento entre os serviços e permite administrar aplicação e dados como camadas independentes.
+
+---
+
+# 🌐 Nginx como reverse proxy
+
+O Nginx funciona como ponto central de entrada para os serviços HTTP.
+
+Fluxo simplificado:
+
+```text
+Cliente
+   │
+   ▼
+HTTPS
+   │
+   ▼
+Nginx
+   │
+   ├──► AgroGestor API
+   │
+   ├──► Outros serviços
+   │
+   └──► Outros endpoints internos
+```
+
+As aplicações permanecem desacopladas da camada pública de entrada, enquanto o Nginx centraliza o encaminhamento das requisições.
+
+Isso também facilita a utilização de HTTPS, organização dos endpoints e futura expansão da infraestrutura.
+
+---
+
+# 🔒 HTTPS e renovação automática de certificados
+
+O ambiente de produção utiliza **HTTPS** através do Nginx.
+
+Os certificados TLS são obtidos através do **Let's Encrypt** e gerenciados pelo **Certbot**.
+
+A renovação automática é executada pelo sistema operacional através de um agendamento baseado em **systemd timer**.
+
+Fluxo simplificado:
+
+```text
+Let's Encrypt
+      │
+      ▼
+   Certbot
+      │
+      ▼
+Systemd Timer
+      │
+      ▼
+Renovação automática
+      │
+      ▼
+    Nginx
+      │
+      ▼
+    HTTPS
+```
+
+A documentação pública não inclui:
+
+* credenciais;
+* chaves privadas;
+* certificados privados;
+* endereços internos;
+* identificadores de máquinas;
+* configurações internas de acesso.
+
+---
+
+# 🗄️ Camada de dados
+
+A persistência é mantida em uma camada separada da aplicação.
+
+### Bancos utilizados
+
+| Banco       | Uso                                               |
+| ----------- | ------------------------------------------------- |
+| **MariaDB** | Persistência relacional do AgroGestor             |
+| **MongoDB** | Persistência de outros serviços da infraestrutura |
+
+O **AgroGestor API utiliza MariaDB** como banco relacional principal.
+
+A separação entre aplicação e banco permite evoluir os serviços de forma independente e facilita a organização operacional do ambiente.
+
+---
+
+# 🔐 Comunicação entre as camadas
+
+A comunicação entre aplicação e persistência ocorre através da **rede privada da infraestrutura**.
+
+Fluxo lógico:
+
+```text
+VM DE APIs
+     │
+     │ Rede privada
+     ▼
+VM DE DADOS
+     │
+     ├──► MariaDB
+     │
+     └──► MongoDB
+```
+
+Detalhes de endereçamento e acesso interno não fazem parte da documentação pública.
+
+---
+
+# 🧠 Gerenciamento de recursos
+
+Os serviços são executados em containers com **limites de recursos definidos individualmente**.
+
+Esse modelo permite:
+
+* evitar que um único serviço consuma todos os recursos disponíveis;
+* reduzir impacto de picos de utilização;
+* controlar melhor o comportamento dos containers;
+* facilitar a operação de múltiplas aplicações no mesmo ambiente.
+
+Exemplo conceitual:
+
+```text
+VM
+│
+├── API A
+│   └── limite de recursos
+│
+├── API B
+│   └── limite de recursos
+│
+└── API C
+    └── limite de recursos
+```
+
+Os valores operacionais específicos não são publicados no README.
+
+---
+
+# 📌 Princípios utilizados na infraestrutura
+
+A arquitetura foi estruturada seguindo alguns princípios:
+
+* **Separação de responsabilidades**
+* **Containerização dos serviços**
+* **Reverse proxy centralizado**
+* **HTTPS**
+* **Renovação automatizada de certificados TLS**
+* **Limitação de recursos por container**
+* **Rede privada entre camadas internas**
+* **Automação de deploy**
+* **Ambiente reproduzível com Docker**
+* **Separação entre aplicação e persistência**
+* **Serviços independentes**
+
+---
+
+# 📁 Estrutura do projeto
+
+```text
 agrogestor-api/
 ├── .github/
 │   └── workflows/
-│       └── deploy.yml             # CI/CD com self-hosted runner
-├── .mvn/wrapper/                  # Maven Wrapper
+│       └── deploy.yml
+├── .mvn/
+│   └── wrapper/
 ├── src/
 │   ├── main/
 │   │   ├── java/com/agrogestor/api/
@@ -152,8 +388,9 @@ agrogestor-api/
 │   │   └── resources/
 │   │       ├── application.properties
 │   │       └── application.yml
-│   └── test/java/com/agrogestor/api/
-│       └── AgrogestorApiApplicationTests.java
+│   └── test/
+│       └── java/com/agrogestor/api/
+│           └── AgrogestorApiApplicationTests.java
 ├── Dockerfile
 ├── docker-compose.yml
 ├── pom.xml
@@ -163,56 +400,60 @@ agrogestor-api/
 
 ---
 
-## 🌐 Endpoints da API
+# 🌐 Endpoints da API
 
-### Base URL
+## Base URL
 
-| Ambiente | URL |
-|---|---|
+| Ambiente     | URL                                  |
+| ------------ | ------------------------------------ |
 | **Produção** | `https://agrogestor-api.duckdns.org` |
-| **Local** | `http://localhost:8080` |
+| **Local**    | `http://localhost:8080`              |
 
-### 🔓 Públicos (sem token)
+## 🔓 Públicos
 
-| Método | Endpoint | Descrição |
-|---|---|---|
-| `GET` | `/` | Health check — confirma que a API está no ar |
-| `POST` | `/api/auth/login` | Autenticação (retorna JWT) |
-| `GET` | `/api/auth/confirmar?token=...` | Confirma e-mail do usuário |
-| `POST` | `/api/usuarios` | Inicia cadastro (envia e-mail de confirmação) |
+| Método | Endpoint                        | Descrição             |
+| ------ | ------------------------------- | --------------------- |
+| `GET`  | `/`                             | Health check          |
+| `POST` | `/api/auth/login`               | Autenticação          |
+| `GET`  | `/api/auth/confirmar?token=...` | Confirmação de e-mail |
+| `POST` | `/api/usuarios`                 | Inicia cadastro       |
 
-### 🔐 Protegidos (Bearer Token)
+## 🔐 Protegidos
 
-Requerem header `Authorization: Bearer <token>`.
+Requerem:
 
-| Método | Endpoint | Descrição |
-|---|---|---|
-| `GET` | `/api/auth/me` | Retorna dados do usuário logado |
-| `DELETE` | `/api/usuarios/me` | Exclui conta (requer senha no body) |
-| `GET` | `/api/animais` | Lista animais do usuário logado |
-| `POST` | `/api/animais` | Cria animal |
-| `PUT` | `/api/animais/{id}` | Atualiza animal |
-| `DELETE` | `/api/animais/{id}` | Exclui animal |
-
-### 📘 Documentação interativa
-
-Swagger UI disponível em produção:
-
+```http
+Authorization: Bearer <token>
 ```
+
+| Método   | Endpoint            | Descrição                     |
+| -------- | ------------------- | ----------------------------- |
+| `GET`    | `/api/auth/me`      | Retorna o usuário autenticado |
+| `DELETE` | `/api/usuarios/me`  | Exclui a conta                |
+| `GET`    | `/api/animais`      | Lista animais                 |
+| `POST`   | `/api/animais`      | Cria animal                   |
+| `PUT`    | `/api/animais/{id}` | Atualiza animal               |
+| `DELETE` | `/api/animais/{id}` | Exclui animal                 |
+
+## 📘 Documentação interativa
+
+### Swagger UI
+
+```text
 https://agrogestor-api.duckdns.org/swagger-ui.html
 ```
 
-OpenAPI 3.1 JSON:
+### OpenAPI
 
-```
+```text
 https://agrogestor-api.duckdns.org/v3/api-docs
 ```
 
 ---
 
-## 📡 Exemplos de requisição
+# 📡 Exemplos de requisição
 
-### 1. Cadastro
+## 1. Cadastro
 
 ```bash
 curl -X POST https://agrogestor-api.duckdns.org/api/usuarios \
@@ -224,7 +465,8 @@ curl -X POST https://agrogestor-api.duckdns.org/api/usuarios \
   }'
 ```
 
-**Resposta:**
+### Resposta
+
 ```json
 {
   "sucesso": true,
@@ -234,7 +476,7 @@ curl -X POST https://agrogestor-api.duckdns.org/api/usuarios \
 
 ---
 
-### 2. Login
+## 2. Login
 
 ```bash
 curl -X POST https://agrogestor-api.duckdns.org/api/auth/login \
@@ -245,7 +487,8 @@ curl -X POST https://agrogestor-api.duckdns.org/api/auth/login \
   }'
 ```
 
-**Resposta:**
+### Resposta
+
 ```json
 {
   "sucesso": true,
@@ -262,7 +505,7 @@ curl -X POST https://agrogestor-api.duckdns.org/api/auth/login \
 
 ---
 
-### 3. Criar animal
+## 3. Criar animal
 
 ```bash
 curl -X POST https://agrogestor-api.duckdns.org/api/animais \
@@ -276,178 +519,246 @@ curl -X POST https://agrogestor-api.duckdns.org/api/animais \
   }'
 ```
 
-**Categorias aceitas:** `BEZERRA`, `NOVILHA`, `VACA_EM_LACTACAO`, `VACA_SECA`
+### Categorias
+
+```text
+BEZERRA
+NOVILHA
+VACA_EM_LACTACAO
+VACA_SECA
+```
 
 ---
 
-### 4. Excluir conta
+## 4. Excluir conta
 
 ```bash
 curl -X DELETE https://agrogestor-api.duckdns.org/api/usuarios/me \
   -H "Authorization: Bearer SEU_TOKEN_AQUI" \
   -H "Content-Type: application/json" \
-  -d '{ "senha": "senhaSegura123" }'
+  -d '{
+    "senha": "senhaSegura123"
+  }'
 ```
 
 ---
 
-## 🗄 Modelo de dados
+# 🗄️ Modelo de dados
 
-### `usuarios`
+## `usuarios`
 
-| Coluna | Tipo | Constraints |
-|---|---|---|
-| `id` | BIGINT | PK, auto-increment |
-| `nome` | VARCHAR | NOT NULL |
-| `email` | VARCHAR | NOT NULL, UNIQUE |
-| `senha_hash` | VARCHAR | NOT NULL (BCrypt) |
-| `ativo` | BOOLEAN | NOT NULL, default false |
-| `token_confirmacao` | VARCHAR | UNIQUE, nullable |
-| `token_expira_em` | DATETIME | nullable |
-| `email_confirmado_em` | DATETIME | nullable |
-| `criado_em` | DATETIME | NOT NULL |
+| Coluna                | Tipo     | Restrições         |
+| --------------------- | -------- | ------------------ |
+| `id`                  | BIGINT   | PK, auto-increment |
+| `nome`                | VARCHAR  | NOT NULL           |
+| `email`               | VARCHAR  | NOT NULL, UNIQUE   |
+| `senha_hash`          | VARCHAR  | NOT NULL, BCrypt   |
+| `ativo`               | BOOLEAN  | NOT NULL           |
+| `token_confirmacao`   | VARCHAR  | UNIQUE, nullable   |
+| `token_expira_em`     | DATETIME | nullable           |
+| `email_confirmado_em` | DATETIME | nullable           |
+| `criado_em`           | DATETIME | NOT NULL           |
 
-### `animais`
+## `animais`
 
-| Coluna | Tipo | Constraints |
-|---|---|---|
-| `id` | BIGINT | PK, auto-increment |
-| `usuario_id` | BIGINT | FK → usuarios.id, NOT NULL |
-| `brinco` | VARCHAR | NOT NULL |
-| `nome` | VARCHAR | NOT NULL |
-| `categoria` | VARCHAR | ENUM: BEZERRA, NOVILHA, VACA_EM_LACTACAO, VACA_SECA |
-| `producao_diaria` | DOUBLE | NOT NULL |
-| `criado_em` | DATETIME | NOT NULL |
-| `atualizado_em` | DATETIME | NOT NULL |
+| Coluna            | Tipo     | Restrições                   |
+| ----------------- | -------- | ---------------------------- |
+| `id`              | BIGINT   | PK, auto-increment           |
+| `usuario_id`      | BIGINT   | FK → `usuarios.id`, NOT NULL |
+| `brinco`          | VARCHAR  | NOT NULL                     |
+| `nome`            | VARCHAR  | NOT NULL                     |
+| `categoria`       | VARCHAR  | ENUM                         |
+| `producao_diaria` | DOUBLE   | NOT NULL                     |
+| `criado_em`       | DATETIME | NOT NULL                     |
+| `atualizado_em`   | DATETIME | NOT NULL                     |
 
-### `cadastros_pendentes`
+## `cadastros_pendentes`
 
-| Coluna | Tipo | Constraints |
-|---|---|---|
-| `id` | BIGINT | PK, auto-increment |
-| `nome` | VARCHAR | NOT NULL |
-| `email` | VARCHAR | NOT NULL, UNIQUE |
-| `senha_hash` | VARCHAR | NOT NULL |
-| `token_confirmacao` | VARCHAR | NOT NULL, UNIQUE |
-| `token_expira_em` | DATETIME | NOT NULL |
-| `criado_em` | DATETIME | NOT NULL |
-
----
-
-## 🔐 Fluxo de autenticação
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│  1. CADASTRO                                                │
-├─────────────────────────────────────────────────────────────┤
-│  POST /api/usuarios                                         │
-│      ↓                                                      │
-│  UsuarioService.cadastrar()                                 │
-│      ↓                                                      │
-│  Cria CadastroPendente + gera token UUID                    │
-│      ↓                                                      │
-│  EmailService envia link:                                   │
-│      https://frontend.com/confirmar?token=<uuid>            │
-└─────────────────────────────────────────────────────────────┘
-                          ↓
-┌─────────────────────────────────────────────────────────────┐
-│  2. CONFIRMAÇÃO                                             │
-├─────────────────────────────────────────────────────────────┤
-│  GET /api/auth/confirmar?token=<uuid>                       │
-│      ↓                                                      │
-│  EmailConfirmationService.confirmarEmail()                  │
-│      ↓                                                      │
-│  Valida token + expiração (24h)                             │
-│      ↓                                                      │
-│  Cria Usuario ativo + remove CadastroPendente               │
-└─────────────────────────────────────────────────────────────┘
-                          ↓
-┌─────────────────────────────────────────────────────────────┐
-│  3. LOGIN                                                   │
-├─────────────────────────────────────────────────────────────┤
-│  POST /api/auth/login                                       │
-│      ↓                                                      │
-│  AuthService.autenticar() — valida BCrypt                   │
-│      ↓                                                      │
-│  JwtService.gerarToken() — assina com HMAC-SHA256           │
-│      ↓                                                      │
-│  Retorna { token, usuario }                                 │
-└─────────────────────────────────────────────────────────────┘
-                          ↓
-┌─────────────────────────────────────────────────────────────┐
-│  4. REQUISIÇÕES AUTENTICADAS                                │
-├─────────────────────────────────────────────────────────────┤
-│  Authorization: Bearer <token>                              │
-│      ↓                                                      │
-│  JwtAuthenticationFilter (OncePerRequestFilter)             │
-│      ↓                                                      │
-│  Valida assinatura + extrai email                           │
-│      ↓                                                      │
-│  Carrega Usuario e popula SecurityContext                   │
-│      ↓                                                      │
-│  Controller recebe via @AuthenticationPrincipal             │
-└─────────────────────────────────────────────────────────────┘
-```
+| Coluna              | Tipo     | Restrições         |
+| ------------------- | -------- | ------------------ |
+| `id`                | BIGINT   | PK, auto-increment |
+| `nome`              | VARCHAR  | NOT NULL           |
+| `email`             | VARCHAR  | NOT NULL, UNIQUE   |
+| `senha_hash`        | VARCHAR  | NOT NULL           |
+| `token_confirmacao` | VARCHAR  | NOT NULL, UNIQUE   |
+| `token_expira_em`   | DATETIME | NOT NULL           |
+| `criado_em`         | DATETIME | NOT NULL           |
 
 ---
 
-## 🚀 Como rodar localmente
+# 🔐 Fluxo de autenticação
 
-### Pré-requisitos
+```text
+┌───────────────────────────────────────────────────────────┐
+│ 1. CADASTRO                                               │
+├───────────────────────────────────────────────────────────┤
+│ POST /api/usuarios                                        │
+│       ↓                                                   │
+│ UsuarioService.cadastrar()                                │
+│       ↓                                                   │
+│ Cria CadastroPendente                                     │
+│       ↓                                                   │
+│ Gera token de confirmação                                  │
+│       ↓                                                   │
+│ EmailService envia link                                   │
+└───────────────────────────────────────────────────────────┘
+                           │
+                           ▼
+┌───────────────────────────────────────────────────────────┐
+│ 2. CONFIRMAÇÃO                                            │
+├───────────────────────────────────────────────────────────┤
+│ GET /api/auth/confirmar?token=<uuid>                      │
+│       ↓                                                   │
+│ EmailConfirmationService.confirmarEmail()                 │
+│       ↓                                                   │
+│ Valida token e expiração                                  │
+│       ↓                                                   │
+│ Cria usuário ativo                                        │
+│       ↓                                                   │
+│ Remove cadastro pendente                                  │
+└───────────────────────────────────────────────────────────┘
+                           │
+                           ▼
+┌───────────────────────────────────────────────────────────┐
+│ 3. LOGIN                                                  │
+├───────────────────────────────────────────────────────────┤
+│ POST /api/auth/login                                      │
+│       ↓                                                   │
+│ AuthService.autenticar()                                  │
+│       ↓                                                   │
+│ BCrypt + credenciais                                      │
+│       ↓                                                   │
+│ JwtService.gerarToken()                                   │
+│       ↓                                                   │
+│ Retorna { token, usuario }                               │
+└───────────────────────────────────────────────────────────┘
+                           │
+                           ▼
+┌───────────────────────────────────────────────────────────┐
+│ 4. REQUISIÇÕES AUTENTICADAS                               │
+├───────────────────────────────────────────────────────────┤
+│ Authorization: Bearer <token>                             │
+│       ↓                                                   │
+│ JwtAuthenticationFilter                                   │
+│       ↓                                                   │
+│ Valida assinatura e identidade                            │
+│       ↓                                                   │
+│ Carrega Usuario                                            │
+│       ↓                                                   │
+│ SecurityContext                                            │
+│       ↓                                                   │
+│ Controller                                                 │
+└───────────────────────────────────────────────────────────┘
+```
 
-- **Java 17** (JDK)
-- **Docker** + **Docker Compose** (recomendado) — ou MariaDB local
-- **Git**
+---
 
-### Opção 1 — Docker Compose (recomendado)
+# 🏗️ Arquitetura em camadas
 
-**1. Clone o repositório:**
+```text
+┌────────────────────────────────────────────────────────────┐
+│                    Controller (REST)                       │
+│  Recebe HTTP, valida entrada e delega para Services        │
+└──────────────────────────────┬─────────────────────────────┘
+                               │
+┌──────────────────────────────▼─────────────────────────────┐
+│                      Service Layer                         │
+│  Regras de negócio, orquestração e transações              │
+└──────────────────────────────┬─────────────────────────────┘
+                               │
+┌──────────────────────────────▼─────────────────────────────┐
+│                       Repository                            │
+│  Persistência e consultas através do Spring Data JPA        │
+└──────────────────────────────┬─────────────────────────────┘
+                               │
+┌──────────────────────────────▼─────────────────────────────┐
+│                        Model / JPA                          │
+│  Entidades e relacionamentos                                │
+└────────────────────────────────────────────────────────────┘
+```
+
+## Padrões utilizados
+
+| Padrão                       | Aplicação                         |
+| ---------------------------- | --------------------------------- |
+| **DTO**                      | Separação entre API e entidades   |
+| **Repository**               | Spring Data JPA                   |
+| **Service Layer**            | Regras de negócio                 |
+| **Dependency Injection**     | Injeção por construtor            |
+| **Global Exception Handler** | `@RestControllerAdvice`           |
+| **Stateless Authentication** | JWT + `STATELESS`                 |
+| **Layered Architecture**     | Controller → Service → Repository |
+
+---
+
+# 🚀 Como executar localmente
+
+## Pré-requisitos
+
+* **Java 17**
+* **Docker**
+* **Docker Compose**
+* **Git**
+
+## Opção 1 — Docker Compose
+
+### 1. Clone
 
 ```bash
 git clone https://github.com/ALVAROVELAME/agrogestor-api.git
 cd agrogestor-api
 ```
 
-**2. Crie o `.env` na raiz** (veja a seção [Variáveis de ambiente](#-variáveis-de-ambiente)):
+### 2. Configure o ambiente
+
+Crie um arquivo `.env` local a partir do modelo disponibilizado no projeto:
 
 ```bash
 cp .env.example .env
-# edite o .env com seus valores
 ```
 
-**3. Suba o container:**
+Edite os valores de acordo com seu ambiente local.
+
+### 3. Suba a aplicação
 
 ```bash
 docker compose up -d --build
 ```
 
-**4. Acompanhe os logs:**
+### 4. Consulte os logs
 
 ```bash
 docker compose logs -f agrogestor_api
 ```
 
-**5. Teste:**
+### 5. Teste
 
 ```bash
-curl http://localhost:3002/
-# → "API AgroGestor funcionando"
+curl http://localhost:8080/
 ```
 
-### Opção 2 — Maven direto
+Resposta esperada:
+
+```text
+API AgroGestor funcionando
+```
+
+---
+
+## Opção 2 — Maven
 
 ```bash
 ./mvnw clean package -DskipTests
 java -jar target/agrogestor-api-0.0.1-SNAPSHOT.jar
 ```
 
-> ⚠️ Requer MariaDB acessível com as credenciais configuradas no `.env`.
+Essa opção requer um MariaDB acessível e configurado no ambiente local.
 
 ---
 
-## ⚙️ Variáveis de ambiente
+# ⚙️ Variáveis de ambiente
 
-Crie um arquivo `.env` na raiz do projeto com:
+Exemplo de configuração local:
 
 ```env
 # ===== BANCO DE DADOS =====
@@ -455,65 +766,85 @@ DB_HOST=mariadb
 DB_PORT=3306
 DB_NAME=agrogestor
 DB_USER=agrogestor
-DB_PASSWORD=sua_senha_forte_aqui
+DB_PASSWORD=defina_uma_senha_local
 
 # ===== JWT =====
-JWT_SECRET=sua_chave_secreta_com_pelo_menos_32_caracteres
+JWT_SECRET=defina_uma_chave_secreta_forte
 JWT_EXPIRATION=86400000
 JWT_ISSUER=agrogestor-api
 
-# ===== EMAIL (SMTP) =====
-MAIL_HOST=smtp.gmail.com
+# ===== EMAIL =====
+MAIL_HOST=smtp.exemplo.com
 MAIL_PORT=587
-MAIL_USERNAME=seu_email@gmail.com
-MAIL_PASSWORD=sua_senha_de_app_aqui
-MAIL_FROM=AgroGestor <nao-responda@agrogestor.app>
+MAIL_USERNAME=seu_email@exemplo.com
+MAIL_PASSWORD=sua_credencial_local
+MAIL_FROM=AgroGestor <seu_email@exemplo.com>
 
-# ===== URLs DA APLICAÇÃO =====
-APP_BASE_URL=https://agrogestor-api.duckdns.org
-APP_FRONTEND_URL=https://agrogestor-br.vercel.app
+# ===== APLICAÇÃO =====
+APP_BASE_URL=http://localhost:8080
+APP_FRONTEND_URL=http://localhost:3000
 
-# ===== PORTA DO SERVIDOR =====
+# ===== PORTA =====
 PORT=8080
 ```
 
-### ⚠️ Notas importantes
+### ⚠️ Segurança
 
-- **`JWT_SECRET`** deve ter **no mínimo 32 caracteres** (exigência do `jjwt` para HMAC-SHA256)
-- **`MAIL_PASSWORD`** no Gmail é uma **senha de app**, não a senha da conta
-- **`APP_FRONTEND_URL`** é usada no link do e-mail de confirmação — deve apontar para o frontend, não para a API
+Nunca publique:
+
+* arquivos `.env`;
+* chaves JWT;
+* senhas de banco;
+* credenciais SMTP;
+* tokens;
+* chaves privadas;
+* certificados privados;
+* secrets de CI/CD.
+
+Para ambientes de produção, utilize mecanismos apropriados de gerenciamento de segredos e variáveis protegidas do pipeline.
 
 ---
 
-## 🐳 Docker
+# 🐳 Docker
 
-### Dockerfile (multi-stage)
+## Dockerfile
+
+O projeto utiliza uma estratégia **multi-stage build**, separando a etapa de compilação da imagem final de execução.
 
 ```dockerfile
 FROM eclipse-temurin:17-jdk AS build
+
 WORKDIR /app
+
 COPY . .
+
 RUN ./mvnw clean package -DskipTests
 
 FROM eclipse-temurin:17-jre
+
 WORKDIR /app
+
 COPY --from=build /app/target/*.jar app.jar
+
 EXPOSE 8080
+
 ENTRYPOINT ["java","-jar","app.jar"]
 ```
 
-### docker-compose.yml
+## Exemplo de Docker Compose para ambiente local
 
 ```yaml
 services:
   agrogestor_api:
     build: .
-    container_name: agrogestor_api
     env_file:
       - .env
+
     ports:
-      - "127.0.0.1:3002:8080"
+      - "8080:8080"
+
     restart: unless-stopped
+
     deploy:
       resources:
         limits:
@@ -521,7 +852,7 @@ services:
           cpus: "0.50"
 ```
 
-**Comandos úteis:**
+### Comandos úteis
 
 ```bash
 # Subir
@@ -533,242 +864,239 @@ docker compose logs -f agrogestor_api
 # Parar
 docker compose down
 
-# Reconstruir sem cache
+# Build sem cache
 docker compose build --no-cache
 
-# Ver consumo
+# Consumo dos containers
 docker stats --no-stream
 ```
 
 ---
 
-## 🚢 Deploy automatizado
+# 🚢 Deploy automatizado
 
-O projeto usa **GitHub Actions com self-hosted runner** para deploy automático. Veja `.github/workflows/deploy.yml`.
+O deploy é realizado através de **GitHub Actions** com execução automatizada no ambiente de produção.
 
-### Fluxo do deploy
+## Fluxo
 
-```
-Push em main
-      ↓
-GitHub Actions aciona o self-hosted runner
-      ↓
-1. Verifica ambiente (docker, memória, disco)
-      ↓
-2. Atualiza projeto em /srv/apps/agrogestor-api
-      ↓
-3. Valida estrutura (Dockerfile, docker-compose, pom.xml)
-      ↓
-4. Para container antigo (docker compose down)
-      ↓
-5. Builda nova imagem (com cache)
-      ↓
-6. Sobe container (docker compose up -d)
-      ↓
-7. Aguarda 25s e verifica logs
-      ↓
-8. Limpa imagens órfãs
+```text
+Push na branch main
+        ↓
+GitHub Actions
+        ↓
+Runner de deploy
+        ↓
+Validação da configuração
+        ↓
+Atualização da aplicação
+        ↓
+Build da nova imagem
+        ↓
+Inicialização dos serviços
+        ↓
+Validação
+        ↓
+Limpeza de recursos antigos
 ```
 
-### Configuração do runner
+A automação reduz a necessidade de intervenção manual e torna o processo de atualização mais previsível.
 
-O runner precisa estar registrado no repositório GitHub com as labels `self-hosted` e acesso a `/srv/apps/`.
+As credenciais e informações sensíveis utilizadas no processo de deploy permanecem fora do código-fonte.
 
 ---
 
-## 🧪 Testes
+# 🧪 Testes
 
-O projeto usa **JUnit 5** com **Spring Boot Test**.
+O projeto utiliza **JUnit 5** e **Spring Boot Test**.
 
-### Rodar todos os testes
+## Todos os testes
 
 ```bash
 ./mvnw test
 ```
 
-### Rodar um teste específico
+## Teste específico
 
 ```bash
 ./mvnw test -Dtest=AgrogestorApiApplicationTests
 ```
 
-### Rodar com cobertura (opcional)
+## Cobertura
 
-Adicione o plugin JaCoCo no `pom.xml` para gerar relatório em `target/site/jacoco/index.html`.
+Para adicionar cobertura, o projeto pode utilizar JaCoCo e gerar:
 
----
-
-## 🏗 Arquitetura em camadas
-
-```
-┌────────────────────────────────────────────────┐
-│               Controller (REST)                │
-│  - Recebe HTTP, valida, delega para Service    │
-│  - Usa @AuthenticationPrincipal p/ usuário     │
-└───────────────────────┬────────────────────────┘
-                        │
-┌───────────────────────▼────────────────────────┐
-│                  Service (BLL)                 │
-│  - Regras de negócio, orquestração             │
-│  - Transações (@Transactional)                 │
-│  - Lança exceções de domínio                   │
-└───────────────────────┬────────────────────────┘
-                        │
-┌───────────────────────▼────────────────────────┐
-│              Repository (JPA)                  │
-│  - Queries, CRUD, isolamento por usuário       │
-│  - extends JpaRepository<T, ID>                │
-└───────────────────────┬────────────────────────┘
-                        │
-┌───────────────────────▼────────────────────────┐
-│              Model (Entidades)                 │
-│  - @Entity, relacionamentos                    │
-│  - Ciclo de vida (@PreUpdate)                  │
-└────────────────────────────────────────────────┘
+```text
+target/site/jacoco/index.html
 ```
 
-### Padrões usados
+---
 
-| Padrão | Onde |
-|---|---|
-| **DTO** | Pacote `dto/` — separa API do domínio |
-| **Repository** | Spring Data JPA |
-| **Service Layer** | Lógica de negócio |
-| **Dependency Injection** | Construtor (recomendado pelo Spring) |
-| **Exception Handler Global** | `@RestControllerAdvice` |
-| **Stateless Auth** | JWT + `SessionCreationPolicy.STATELESS` |
+# 🔒 Segurança
+
+## Implementado
+
+* ✅ BCrypt para armazenamento de senhas
+* ✅ JWT assinado com HMAC-SHA256
+* ✅ Autenticação stateless
+* ✅ CORS configurado
+* ✅ CSRF desabilitado para API stateless
+* ✅ Isolamento de dados por usuário
+* ✅ Validação de DTOs
+* ✅ Confirmação de senha para exclusão de conta
+* ✅ Expiração de tokens
+* ✅ HTTPS em produção
+* ✅ Certificados TLS gerenciados pelo Certbot
+* ✅ Renovação automática de certificados
+* ✅ Segredos mantidos fora do código-fonte
+
+### Isolamento multi-tenant
+
+Cada animal pertence a um usuário através da associação:
+
+```text
+Usuario
+   │
+   └── usuario_id
+          │
+          ▼
+       Animal
+```
+
+As operações autenticadas utilizam a identidade do usuário presente no `SecurityContext` para restringir o acesso aos dados correspondentes.
 
 ---
 
-## ♿ Segurança
+# 🛡️ Boas práticas para publicação
 
-### Implementado
+Este repositório pode ser utilizado como documentação técnica e portfólio sem expor informações operacionais do ambiente de produção.
 
-- ✅ **BCrypt** para hash de senhas (força 10 por padrão)
-- ✅ **JWT HMAC-SHA256** com assinatura verificada
-- ✅ **Stateless** — sem sessão no servidor
-- ✅ **CORS** configurado com origens explícitas
-- ✅ **CSRF desabilitado** (API stateless — correto)
-- ✅ **Isolamento de dados** por usuário no nível da query
-- ✅ **Validação de entrada** em todos os DTOs
-- ✅ **Senha obrigatória** para excluir conta (proteção contra CSRF)
-- ✅ **Token expirável** (24h para confirmação, 24h para JWT por padrão)
-- ✅ **Secret JWT** com mínimo de 32 caracteres
-- ✅ **HTTPS obrigatório** em produção (via `forward-headers-strategy: framework`)
+Antes de publicar alterações, evite versionar:
 
-### Recomendações para produção
+```text
+.env
+.env.*
+*.pem
+*.key
+*.p12
+*.jks
+```
 
-- 🔐 Use HTTPS em todos os endpoints (Let's Encrypt, Cloudflare, etc.)
-- 🔑 Rotacione o `JWT_SECRET` periodicamente
-- 📧 Use um provedor de e-mail transacional (SendGrid, Postmark, SES)
-- 🛡️ Configure rate limiting (nginx, Cloudflare)
-- 📊 Monitore logs com Sentry, Datadog, etc.
-- 🗄️ Faça backup regular do MariaDB
+Também é recomendado manter fora do repositório:
+
+* credenciais de banco;
+* credenciais SMTP;
+* segredos JWT;
+* tokens de acesso;
+* chaves privadas;
+* identificadores internos de infraestrutura;
+* configurações específicas de acesso à produção.
+
+O projeto deve utilizar arquivos de exemplo para demonstrar a configuração necessária sem revelar valores reais.
 
 ---
 
-## 📊 Logs e monitoramento
+# 📊 Logs e monitoramento
 
-### Ver logs do container
+## Logs do container
 
 ```bash
 docker logs --tail 100 agrogestor_api
+```
+
+```bash
 docker logs -f agrogestor_api
 ```
 
-### Estatísticas em tempo real
+## Estatísticas
 
 ```bash
 docker stats agrogestor_api
 ```
 
-### Health check
+## Health check
 
 ```bash
-curl -s https://agrogestor-api.duckdns.org/ | head -c 100
-# → "API AgroGestor funcionando"
+curl -s https://agrogestor-api.duckdns.org/
+```
+
+Resposta esperada:
+
+```text
+API AgroGestor funcionando
 ```
 
 ---
 
-## 🗺 Roadmap
+# 🗺️ Roadmap
 
-### Concluído ✅
+## Concluído ✅
 
-- [x] Cadastro com confirmação de e-mail
-- [x] Login com JWT
-- [x] CRUD completo de animais
-- [x] Isolamento multi-tenant
-- [x] Exclusão de conta
-- [x] Swagger/OpenAPI
-- [x] Dockerização
-- [x] Deploy automatizado com GitHub Actions
-- [x] Tratamento global de exceções
+* Cadastro com confirmação de e-mail
+* Login com JWT
+* CRUD de animais
+* Isolamento de dados por usuário
+* Exclusão de conta
+* Swagger/OpenAPI
+* Dockerização
+* Infraestrutura virtualizada
+* Separação entre aplicação e banco de dados
+* Nginx como reverse proxy
+* HTTPS em produção
+* Renovação automática de certificados TLS
+* Deploy automatizado com GitHub Actions
+* Tratamento global de exceções
 
-### Em planejamento 📋
+## Em planejamento 📋
 
-- [ ] Refresh token
-- [ ] Rate limiting por IP
-- [ ] Logs estruturados (JSON)
-- [ ] Métricas Prometheus/Grafana
-- [ ] Testes de integração com Testcontainers
-- [ ] Migrations com Flyway
-- [ ] Multi-fazenda por usuário
-- [ ] Auditoria de ações (`@CreatedBy`, `@LastModifiedBy`)
-
----
-
-## 🤝 Contribuição
-
-1. Faça um **fork** do projeto
-2. Crie uma branch para sua feature:
-   ```bash
-   git checkout -b feat/minha-feature
-   ```
-3. Commit seguindo [Conventional Commits](https://www.conventionalcommits.org/):
-   ```bash
-   git commit -m "feat: adiciona endpoint de relatórios"
-   ```
-4. Faça push:
-   ```bash
-   git push origin feat/minha-feature
-   ```
-5. Abra um **Pull Request**
-
-### Padrões de código
-
-- **Java 17** com recursos modernos (records, switch expressions, text blocks)
-- **Camadas bem definidas** — Controller → Service → Repository
-- **DTOs separados** dos Models JPA
-- **Sem lógica de negócio em Controllers**
-- **Exceções de domínio** para erros esperados
-- **Injeção por construtor** (nunca `@Autowired` em campo)
-- **Commits atômicos** com mensagens descritivas
+* Refresh token
+* Rate limiting por IP
+* Logs estruturados em JSON
+* Métricas com Prometheus/Grafana
+* Testes de integração com Testcontainers
+* Migrations com Flyway
+* Multi-fazenda por usuário
+* Auditoria de ações
+* Estratégia de backup automatizado
+* Observabilidade centralizada
 
 ---
 
-## 📄 Licença
+# 🧑‍💻 Desenvolvimento
 
-Este projeto está sob a licença **MIT**. Veja o arquivo [LICENSE](./LICENSE) para mais detalhes.
+## Padrões de código
+
+* **Java 17**
+* Controllers sem lógica de negócio
+* DTOs separados das entidades
+* Service Layer para regras de negócio
+* Repository para persistência
+* Injeção por construtor
+* Exceções tratadas globalmente
+* Commits atômicos e descritivos
+* Configurações sensíveis mantidas fora do código
+
+### Convenção de commits
+
+O projeto pode utilizar [Conventional Commits](https://www.conventionalcommits.org/):
+
+```bash
+git commit -m "feat: adiciona endpoint de relatórios"
+```
 
 ---
 
-## 📞 Contato
+# 📞 Contato
 
-| Canal | |
-|---|---|
-| 🌐 **API** | [agrogestor-api.duckdns.org](https://agrogestor-api.duckdns.org) |
-| 📘 **Swagger** | [agrogestor-api.duckdns.org/swagger-ui.html](https://agrogestor-api.duckdns.org/swagger-ui.html) |
-| 🐛 **Issues** | [github.com/ALVAROVELAME/agrogestor-api/issues](https://github.com/ALVAROVELAME/agrogestor-api/issues) |
+| Canal          | Acesso                                                                                                 |
+| -------------- | ------------------------------------------------------------------------------------------------------ |
+| 🌐 **API**     | [agrogestor-api.duckdns.org](https://agrogestor-api.duckdns.org/)                                      |
+| 📘 **Swagger** | [agrogestor-api.duckdns.org/swagger-ui.html](https://agrogestor-api.duckdns.org/swagger-ui.html)       |
+| 🐛 **Issues**  | [github.com/ALVAROVELAME/agrogestor-api/issues](https://github.com/ALVAROVELAME/agrogestor-api/issues) |
 
 ---
-
-<div align="center">
 
 ### Feito com ☕ e 💚 no Brasil 🇧🇷
 
 **AgroGestor API** — backend para gestão inteligente de rebanho
 
 [⬆ Voltar ao topo](#-agrogestor-api)
-
-</div>
