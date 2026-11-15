@@ -11,6 +11,7 @@ public interface CadastroPendenteRepository
         extends JpaRepository<CadastroPendente, Long> {
 
 
+    @org.springframework.data.jpa.repository.Lock(jakarta.persistence.LockModeType.PESSIMISTIC_WRITE)
     Optional<CadastroPendente> findByTokenConfirmacao(String token);
 
 

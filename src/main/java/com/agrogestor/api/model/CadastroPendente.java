@@ -89,10 +89,6 @@ public class CadastroPendente {
     }
 
 
-    // Compatibilidade com UsuarioService
-    public String getToken(){
-        return tokenConfirmacao;
-    }
 
 
     public LocalDateTime getTokenExpiraEm(){

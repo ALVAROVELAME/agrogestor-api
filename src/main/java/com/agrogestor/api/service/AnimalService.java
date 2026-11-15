@@ -38,7 +38,7 @@ public class AnimalService {
 
     public Animal atualizar(Usuario usuario, Long id, AnimalRequestDTO dto) {
         Animal animal = repo.findByIdAndUsuarioId(id, usuario.getId())
-                .orElseThrow(() -> new RuntimeException("Animal não encontrado"));
+                .orElseThrow(() -> new com.agrogestor.api.exception.NotFoundException("Animal não encontrado"));
 
         animal.setBrinco(dto.getBrinco().trim());
         animal.setNome(dto.getNome().trim());
@@ -50,22 +50,20 @@ public class AnimalService {
 
     public void excluir(Usuario usuario, Long id) {
         Animal animal = repo.findByIdAndUsuarioId(id, usuario.getId())
-                .orElseThrow(() -> new RuntimeException("Animal não encontrado"));
+                .orElseThrow(() -> new com.agrogestor.api.exception.NotFoundException("Animal não encontrado"));
         repo.delete(animal);
     }
 
     private Categoria parseCategoria(String valor) {
+        if (valor == null || valor.isBlank()) {
+            throw new IllegalArgumentException("Categoria é obrigatória");
+        }
+        String normalizada = java.text.Normalizer.normalize(valor.trim(), java.text.Normalizer.Form.NFD)
+                .replaceAll("\\p{M}", "").toUpperCase(java.util.Locale.ROOT).replaceAll("\\s+", "_");
         try {
-            return Categoria.valueOf(valor.toUpperCase().replace(' ', '_'));
-        } catch (Exception e) {
-            // aceita tanto "Vaca em Lactação" quanto "VACA_EM_LACTACAO"
-            return switch (valor) {
-                case "Bezerra" -> Categoria.BEZERRA;
-                case "Novilha" -> Categoria.NOVILHA;
-                case "Vaca em Lactação" -> Categoria.VACA_EM_LACTACAO;
-                case "Vaca Seca" -> Categoria.VACA_SECA;
-                default -> throw new RuntimeException("Categoria inválida: " + valor);
-            };
+            return Categoria.valueOf(normalizada);
+        } catch (IllegalArgumentException ex) {
+            throw new IllegalArgumentException("Categoria inválida");
         }
     }
 }

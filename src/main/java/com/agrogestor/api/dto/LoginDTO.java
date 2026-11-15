@@ -7,9 +7,11 @@ public class LoginDTO {
 
     @NotBlank(message = "E-mail é obrigatório")
     @Email(message = "E-mail inválido")
+    @jakarta.validation.constraints.Size(max = 255, message = "E-mail muito longo")
     private String email;
 
     @NotBlank(message = "Senha é obrigatória")
+    @com.agrogestor.api.validation.BcryptPassword
     private String senha;
 
     public String getEmail() { return email; }

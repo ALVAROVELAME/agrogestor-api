@@ -4,10 +4,10 @@
 
 API REST desenvolvida com Spring Boot para gerenciamento de rebanho leiteiro, com autenticação JWT, confirmação de e-mail e isolamento de dados por usuário.
 
-[Spring Boot](https://spring.io/projects/spring-boot) ([image](https://img.shields.io/badge/Spring%20Boot-4.0.7-6DB33F?logo=springboot&logoColor=white))
+[Spring Boot](https://spring.io/projects/spring-boot) ([image](https://img.shields.io/badge/Spring%20Boot-4.0.9-6DB33F?logo=springboot&logoColor=white))
 [Java](https://openjdk.org/) ([image](https://img.shields.io/badge/Java-17-ED8B00?logo=openjdk&logoColor=white))
 [MariaDB](https://mariadb.org/) ([image](https://img.shields.io/badge/MariaDB-11-003545?logo=mariadb&logoColor=white))
-[JWT](https://github.com/jwtk/jjwt) ([image](https://img.shields.io/badge/JWT-jjwt--0.12.6-000000?logo=jsonwebtokens&logoColor=white))
+[JWT](https://github.com/jwtk/jjwt) ([image](https://img.shields.io/badge/JWT-jjwt--0.13.0-000000?logo=jsonwebtokens&logoColor=white))
 [Docker](https://www.docker.com/) ([image](https://img.shields.io/badge/Docker-ready-2496ED?logo=docker&logoColor=white))
 
 [🌐 API em produção](https://agrogestor-api.duckdns.org/) · [📘 Swagger UI](https://agrogestor-api.duckdns.org/swagger-ui.html)
@@ -69,11 +69,11 @@ Além da aplicação, o projeto possui uma infraestrutura de produção baseada 
 
 | Tecnologia                                                                          | Versão | Uso                 |
 | ----------------------------------------------------------------------------------- | -----: | ------------------- |
-| [Spring Boot](https://spring.io/projects/spring-boot)                               |  4.0.7 | Framework principal |
+| [Spring Boot](https://spring.io/projects/spring-boot)                               |  4.0.9 | Framework principal |
 | [Java](https://openjdk.org/)                                                        |     17 | Linguagem           |
 | [Spring Web MVC](https://docs.spring.io/spring-framework/reference/web/webmvc.html) |      — | Camada REST         |
 | [Spring Data JPA](https://spring.io/projects/spring-data-jpa)                       |      — | Persistência        |
-| [Hibernate](https://hibernate.org/)                                                 |    6.x | ORM                 |
+| [Hibernate](https://hibernate.org/)                                                 |    7.x | ORM                 |
 | [MariaDB Connector/J](https://mariadb.com/kb/en/about-mariadb-connector-j/)         |      — | Driver JDBC         |
 
 ## Segurança e autenticação
@@ -81,7 +81,7 @@ Além da aplicação, o projeto possui uma infraestrutura de produção baseada 
 | Tecnologia                                                    | Versão | Uso                        |
 | ------------------------------------------------------------- | -----: | -------------------------- |
 | [Spring Security](https://spring.io/projects/spring-security) |      — | Segurança e filtros        |
-| [JJWT](https://github.com/jwtk/jjwt)                          | 0.12.6 | Geração e validação de JWT |
+| [JJWT](https://github.com/jwtk/jjwt)                          | 0.13.0 | Geração e validação de JWT |
 | [BCrypt](https://en.wikipedia.org/wiki/Bcrypt)                |      — | Hash de senhas             |
 
 ## Comunicação e documentação
@@ -89,7 +89,7 @@ Além da aplicação, o projeto possui uma infraestrutura de produção baseada 
 | Tecnologia                                                                              | Versão | Uso                  |
 | --------------------------------------------------------------------------------------- | -----: | -------------------- |
 | [Spring Mail](https://docs.spring.io/spring-framework/reference/integration/email.html) |      — | Envio de e-mails     |
-| [SpringDoc OpenAPI](https://springdoc.org/)                                             |  2.8.6 | Swagger UI / OpenAPI |
+| [SpringDoc OpenAPI](https://springdoc.org/)                                             |  3.0.3 | Swagger UI / OpenAPI |
 | [Bean Validation](https://beanvalidation.org/)                                          |      — | Validação de DTOs    |
 
 ## DevOps e infraestrutura
@@ -339,7 +339,8 @@ A arquitetura foi estruturada seguindo alguns princípios:
 agrogestor-api/
 ├── .github/
 │   └── workflows/
-│       └── deploy.yml
+│       ├── deploy.yml
+│       └── tests.yml
 ├── .mvn/
 │   └── wrapper/
 ├── src/
@@ -366,7 +367,9 @@ agrogestor-api/
 │   │   │   │   ├── UsuarioCadastroDTO.java
 │   │   │   │   └── UsuarioRespostaDTO.java
 │   │   │   ├── exception/
-│   │   │   │   └── GlobalExceptionHandler.java
+│   │   │   │   ├── GlobalExceptionHandler.java
+│   │   │   │   ├── ConflictException.java
+│   │   │   │   └── NotFoundException.java
 │   │   │   ├── model/
 │   │   │   │   ├── Animal.java
 │   │   │   │   ├── CadastroPendente.java
@@ -378,6 +381,9 @@ agrogestor-api/
 │   │   │   │   └── UsuarioRepository.java
 │   │   │   ├── security/
 │   │   │   │   └── JwtAuthenticationFilter.java
+│   │   │   ├── validation/
+│   │   │   │   ├── BcryptPassword.java
+│   │   │   │   └── BcryptPasswordValidator.java
 │   │   │   └── service/
 │   │   │       ├── AnimalService.java
 │   │   │       ├── AuthService.java
@@ -386,11 +392,18 @@ agrogestor-api/
 │   │   │       ├── JwtService.java
 │   │   │       └── UsuarioService.java
 │   │   └── resources/
-│   │       ├── application.properties
 │   │       └── application.yml
 │   └── test/
-│       └── java/com/agrogestor/api/
-│           └── AgrogestorApiApplicationTests.java
+│       ├── java/com/agrogestor/api/
+│       │   ├── AgrogestorApiIT.java
+│       │   ├── controller/
+│       │   ├── service/
+│       │   └── validation/
+│       └── resources/application-test.yml
+├── scripts/check_dependencies.py
+├── docs/REVISAO.md
+├── .env.example
+├── .dockerignore
 ├── Dockerfile
 ├── docker-compose.yml
 ├── pom.xml
@@ -407,7 +420,8 @@ agrogestor-api/
 | Ambiente     | URL                                  |
 | ------------ | ------------------------------------ |
 | **Produção** | `https://agrogestor-api.duckdns.org` |
-| **Local**    | `http://localhost:8080`              |
+| **Local (Maven)** | `http://localhost:8080` |
+| **Local (Compose)** | `http://localhost:3002` |
 
 ## 🔓 Públicos
 
@@ -434,6 +448,17 @@ Authorization: Bearer <token>
 | `POST`   | `/api/animais`      | Cria animal                   |
 | `PUT`    | `/api/animais/{id}` | Atualiza animal               |
 | `DELETE` | `/api/animais/{id}` | Exclui animal                 |
+
+## ⚠️ Respostas de erro
+
+| Status | Situação |
+| --- | --- |
+| `400` | Dados inválidos, JSON malformado ou token de confirmação inválido/expirado |
+| `401` | Credenciais inválidas, ausência de JWT ou token que não corresponde a uma conta ativa |
+| `403` | Conta ainda não confirmada no login, após validação da senha, ou origem CORS não permitida |
+| `404` | Animal inexistente ou pertencente a outro usuário |
+| `409` | E-mail já cadastrado, confirmação ainda pendente ou conflito de integridade |
+| `500` | Falha interna, sem detalhes sensíveis na resposta |
 
 ## 📘 Documentação interativa
 
@@ -717,7 +742,7 @@ Crie um arquivo `.env` local a partir do modelo disponibilizado no projeto:
 cp .env.example .env
 ```
 
-Edite os valores de acordo com seu ambiente local.
+Edite os valores de acordo com seu ambiente local. O Compose deste repositório publica a API em `127.0.0.1:3002` e requer um MariaDB externo acessível pelo container. No Docker Desktop, `host.docker.internal` permite acessar um banco executado no host. O banco não é criado pelo Compose.
 
 ### 3. Suba a aplicação
 
@@ -734,7 +759,7 @@ docker compose logs -f agrogestor_api
 ### 5. Teste
 
 ```bash
-curl http://localhost:8080/
+curl http://localhost:3002/
 ```
 
 Resposta esperada:
@@ -748,11 +773,11 @@ API AgroGestor funcionando
 ## Opção 2 — Maven
 
 ```bash
-./mvnw clean package -DskipTests
+./mvnw clean verify
 java -jar target/agrogestor-api-0.0.1-SNAPSHOT.jar
 ```
 
-Essa opção requer um MariaDB acessível e configurado no ambiente local.
+Essa opção requer Docker ativo durante `verify` e um MariaDB acessível para executar a aplicação. Exporte as variáveis no terminal antes de iniciar o JAR: o Spring Boot não carrega `.env` automaticamente. No Windows, use `.\mvnw.cmd`. Para somente empacotar com testes unitários/HTTP, use `./mvnw clean package`.
 
 ---
 
@@ -769,7 +794,7 @@ DB_USER=agrogestor
 DB_PASSWORD=defina_uma_senha_local
 
 # ===== JWT =====
-JWT_SECRET=defina_uma_chave_secreta_forte
+JWT_SECRET=substitua_por_uma_chave_aleatoria_de_pelo_menos_32_bytes
 JWT_EXPIRATION=86400000
 JWT_ISSUER=agrogestor-api
 
@@ -781,7 +806,6 @@ MAIL_PASSWORD=sua_credencial_local
 MAIL_FROM=AgroGestor <seu_email@exemplo.com>
 
 # ===== APLICAÇÃO =====
-APP_BASE_URL=http://localhost:8080
 APP_FRONTEND_URL=http://localhost:3000
 
 # ===== PORTA =====
@@ -818,7 +842,7 @@ WORKDIR /app
 
 COPY . .
 
-RUN ./mvnw clean package -DskipTests
+RUN sh ./mvnw -B clean package -DskipTests
 
 FROM eclipse-temurin:17-jre
 
@@ -826,12 +850,14 @@ WORKDIR /app
 
 COPY --from=build /app/target/*.jar app.jar
 
+USER 10001:10001
+
 EXPOSE 8080
 
 ENTRYPOINT ["java","-jar","app.jar"]
 ```
 
-## Exemplo de Docker Compose para ambiente local
+## Docker Compose do projeto
 
 ```yaml
 services:
@@ -841,7 +867,7 @@ services:
       - .env
 
     ports:
-      - "8080:8080"
+      - "127.0.0.1:3002:8080"
 
     restart: unless-stopped
 
@@ -884,6 +910,8 @@ Push na branch main
         ↓
 GitHub Actions
         ↓
+Testes unitários, HTTP e MariaDB em Docker
+        ↓
 Runner de deploy
         ↓
 Validação da configuração
@@ -907,27 +935,81 @@ As credenciais e informações sensíveis utilizadas no processo de deploy perma
 
 # 🧪 Testes
 
-O projeto utiliza **JUnit 5** e **Spring Boot Test**.
+O projeto utiliza **JUnit Jupiter**, **Mockito**, **MockMvc** e **Testcontainers com MariaDB real**, com cobertura gerada pelo **JaCoCo**.
 
-## Todos os testes
+> **Compatibilidade:** o Spring Boot 4 / Spring Framework 7 exige JUnit 6 para a integração com Spring Test. A suíte usa o Jupiter 6 gerenciado pelo Boot, mantendo a API `org.junit.jupiter` conhecida do JUnit 5. Fixar JUnit 5 neste projeto causa `NoSuchMethodError` no carregamento dos testes HTTP. Veja a [baseline oficial do Spring Framework 7](https://spring.io/blog/2025/11/13/spring-framework-7-0-general-availability/).
+
+## Testes unitários e HTTP (sem Docker)
 
 ```bash
 ./mvnw test
 ```
 
+No Windows/PowerShell:
+
+```powershell
+.\mvnw.cmd test
+```
+
+Os serviços usam Mockito para simular repositórios e SMTP. Os testes HTTP usam MockMvc com a cadeia real de segurança e tokens JWT assinados, verificando todos os endpoints, validação, autenticação, CORS e respostas de erro.
+
+## Suíte completa, incluindo integração
+
+```bash
+./mvnw clean verify
+```
+
+```powershell
+.\mvnw.cmd clean verify
+```
+
+Requer **Docker ativo**, Java 17 e acesso à internet no primeiro download. O Testcontainers inicia `mariadb:11.4` em uma porta aleatória, cria um banco descartável e remove o container ao final. Não usa banco, SMTP ou credenciais de produção. Somente o envio SMTP é simulado na integração.
+
+O Maven Surefire executa `*Test`; o Failsafe executa `*IT` durante `verify`. Sem Docker, a integração **falha explicitamente**; ela não é ignorada silenciosamente.
+
+### Cenários de integração
+
+* Cadastro → confirmação → login → criação, atualização, listagem e exclusão de animal.
+* Isolamento de dados entre usuários e resposta 404 para animal de outro dono.
+* Exclusão de conta com senha e invalidação de JWT antigo, inclusive após recadastro.
+* Rollback do cadastro quando o SMTP falha e renovação de cadastro expirado.
+* Confirmação concorrente de e-mail consumindo o token apenas uma vez.
+* Rollback da confirmação diante de falha no banco.
+* Carregamento do OpenAPI e Swagger UI.
+
 ## Teste específico
 
 ```bash
-./mvnw test -Dtest=AgrogestorApiApplicationTests
+./mvnw test -Dtest=AnimalServiceTest
+./mvnw verify -Dit.test=AgrogestorApiIT
 ```
 
-## Cobertura
+## Resultados e cobertura
 
-Para adicionar cobertura, o projeto pode utilizar JaCoCo e gerar:
+Na revisão de 15/11/2026, os **72 testes passaram** (64 unitários/HTTP e 8 de integração), com **94,93% de cobertura de linhas** e **87,04% de ramos**. Os valores são um retrato dessa execução; consulte o relatório gerado para a versão atual.
+
+Após `verify`, consulte:
 
 ```text
+target/surefire-reports/
+target/failsafe-reports/
 target/site/jacoco/index.html
 ```
+
+O GitHub Actions executa a suíte em pull requests e antes do deploy da `main`, publicando os resultados e a cobertura como artefatos. O deploy depende do sucesso dos testes e utiliza o commit testado.
+
+## Verificação de dependências
+
+Com Python 3 e acesso à internet:
+
+```bash
+./mvnw dependency:tree -DoutputType=json -DoutputFile=target/dependency-tree.json
+python scripts/check_dependencies.py
+```
+
+No PowerShell, coloque os argumentos `-D...` entre aspas. O script consulta os pacotes resolvidos na [OSV](https://osv.dev/), incluindo dependências transitivas e de teste, e grava `target/security-audit.json`. Retorna código 1 se encontrar avisos e 2 se a consulta falhar. A ausência de avisos conhecidos não é uma garantia de ausência de vulnerabilidades.
+
+A revisão de código, limpeza e decisões de compatibilidade estão em [docs/REVISAO.md](docs/REVISAO.md).
 
 ---
 
@@ -936,14 +1018,17 @@ target/site/jacoco/index.html
 ## Implementado
 
 * ✅ BCrypt para armazenamento de senhas
-* ✅ JWT assinado com HMAC-SHA256
+* ✅ JWT assinado com HMAC, emissor e expiração validados, vinculado ao ID da conta
 * ✅ Autenticação stateless
-* ✅ CORS configurado
+* ✅ CORS limitado a origens explícitas (sem curingas para Vercel/DuckDNS)
 * ✅ CSRF desabilitado para API stateless
 * ✅ Isolamento de dados por usuário
-* ✅ Validação de DTOs
+* ✅ Validação de DTOs, incluindo limite BCrypt de 72 bytes UTF-8
 * ✅ Confirmação de senha para exclusão de conta
-* ✅ Expiração de tokens
+* ✅ Expiração de tokens e bloqueio de contas inativas
+* ✅ Erros internos sem detalhes sensíveis na resposta
+* ✅ Cadastro e confirmação transacionais
+* ✅ Container executado sem root e segredos excluídos do contexto de build
 * ✅ HTTPS em produção
 * ✅ Certificados TLS gerenciados pelo Certbot
 * ✅ Renovação automática de certificados

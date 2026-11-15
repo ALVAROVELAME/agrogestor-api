@@ -46,12 +46,44 @@ public class GlobalExceptionHandler {
                 .body(new MensagemRespostaDTO(false, ex.getMessage()));
     }
 
-    @ExceptionHandler(RuntimeException.class)
+    @ExceptionHandler(NotFoundException.class)
+    public ResponseEntity<MensagemRespostaDTO> tratarNaoEncontrado(NotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new MensagemRespostaDTO(false, ex.getMessage()));
+    }
+
+    @ExceptionHandler(ConflictException.class)
+    public ResponseEntity<MensagemRespostaDTO> tratarConflito(ConflictException ex) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(new MensagemRespostaDTO(false, ex.getMessage()));
+    }
+
+    @ExceptionHandler(org.springframework.dao.DataIntegrityViolationException.class)
+    public ResponseEntity<MensagemRespostaDTO> tratarIntegridade() {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(new MensagemRespostaDTO(false, "Dados em conflito com um registro existente."));
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<MensagemRespostaDTO> tratarArgumento(IllegalArgumentException ex) {
+        return ResponseEntity.badRequest().body(new MensagemRespostaDTO(false, ex.getMessage()));
+    }
+
+    @ExceptionHandler({org.springframework.http.converter.HttpMessageNotReadableException.class,
+            org.springframework.web.bind.MissingServletRequestParameterException.class,
+            org.springframework.web.method.annotation.MethodArgumentTypeMismatchException.class})
+    public ResponseEntity<MensagemRespostaDTO> tratarRequisicaoInvalida(Exception ex) {
+        return ResponseEntity.badRequest().body(new MensagemRespostaDTO(false, "Requisição inválida."));
+    }
+
+    @ExceptionHandler(Exception.class)
     public ResponseEntity<MensagemRespostaDTO> tratarRuntime(
-            RuntimeException ex
+            Exception ex
     ) {
+        if (ex instanceof org.springframework.web.ErrorResponse error) {
+            return ResponseEntity.status(error.getStatusCode()).headers(error.getHeaders())
+                    .body(new MensagemRespostaDTO(false, "Requisição não suportada."));
+        }
+        org.slf4j.LoggerFactory.getLogger(GlobalExceptionHandler.class).error("Falha interna ao processar requisição", ex);
         return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
-                .body(new MensagemRespostaDTO(false, ex.getMessage()));
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(new MensagemRespostaDTO(false, "Erro interno. Tente novamente mais tarde."));
     }
 }

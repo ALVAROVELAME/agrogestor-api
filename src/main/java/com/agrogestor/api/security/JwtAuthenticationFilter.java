@@ -44,11 +44,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         if (header != null && header.startsWith("Bearer ")) {
             String token = header.substring(7);
 
-            if (jwtService.isTokenValido(token)) {
-                String email = jwtService.extrairEmail(token);
+            try {
+                io.jsonwebtoken.Claims claims = jwtService.validarClaims(token);
+                String email = claims.getSubject();
                 Optional<Usuario> usuarioOpt = usuarioRepository.findByEmail(email);
 
-                if (usuarioOpt.isPresent()) {
+                if (usuarioOpt.isPresent() && Boolean.TRUE.equals(usuarioOpt.get().getAtivo())
+                        && java.util.Objects.equals(usuarioOpt.get().getId(), claims.get("id", Long.class))) {
                     Usuario usuario = usuarioOpt.get();
 
                     UsernamePasswordAuthenticationToken auth =
@@ -62,6 +64,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     );
                     SecurityContextHolder.getContext().setAuthentication(auth);
                 }
+            } catch (io.jsonwebtoken.JwtException | IllegalArgumentException ex) {
+                SecurityContextHolder.clearContext();
             }
         }
 

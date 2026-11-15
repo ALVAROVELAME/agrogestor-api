@@ -34,11 +34,12 @@ build/
 
 # Environment
 .env
+.env.*
+!.env.example
 
 # Adicionado automaticamente
 application-local.yml
 application-local.properties
-.idea/
 .DS_Store
 Thumbs.db
 

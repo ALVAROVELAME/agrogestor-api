@@ -1,0 +1,22 @@
+spring:
+  datasource:
+    hikari:
+      minimum-idle: 0
+      connection-timeout: 1000
+  jpa:
+    hibernate:
+      # O banco inteiro é descartado pelo Testcontainers ao finalizar.
+      ddl-auto: create
+    open-in-view: false
+  mail:
+    host: localhost
+    port: 2525
+    username: teste
+    password: teste
+jwt:
+  secret: chave-exclusiva-de-testes-com-mais-de-32-bytes
+  expiration: 60000
+  issuer: agrogestor-test
+app:
+  frontend-url: https://frontend.example.com
+MAIL_FROM: teste@example.com

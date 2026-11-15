@@ -10,10 +10,19 @@ on:
 
 
 
+concurrency:
+  group: agrogestor-production
+  cancel-in-progress: false
+
 jobs:
+
+  tests:
+    uses: ./.github/workflows/tests.yml
 
 
   deploy:
+
+    needs: tests
 
 
     runs-on: self-hosted
@@ -78,7 +87,7 @@ jobs:
 
           git fetch origin main
 
-          git reset --hard origin/main
+          git reset --hard "${{ github.sha }}"
 
 
           echo "Projeto atualizado"
@@ -130,19 +139,6 @@ jobs:
 
 
 
-      - name: Parar versão antiga
-
-        run: |
-
-          cd /srv/apps/agrogestor-api
-
-
-          docker compose down || true
-
-
-
-
-
       - name: Construir nova imagem usando cache
 
         run: |
@@ -169,17 +165,9 @@ jobs:
 
 
 
-      - name: Aguardar inicialização
-
+      - name: Validar resposta HTTP da API
         run: |
-
-          echo "Aguardando Spring Boot iniciar..."
-
-          sleep 25
-
-
-
-
+          curl --fail --silent --show-error --retry 12 --retry-connrefused --retry-delay 5 --max-time 5 --retry-max-time 90 http://127.0.0.1:3002/
 
       - name: Verificar aplicação
 

@@ -26,6 +26,7 @@ public class EmailConfirmationService {
 
     }
 
+    @org.springframework.transaction.annotation.Transactional
     public boolean confirmarEmail(String token) {
 
         Optional<CadastroPendente> cadastroOptional =
@@ -39,7 +40,7 @@ public class EmailConfirmationService {
 
         if (
                 cadastro.getTokenExpiraEm() == null ||
-                        cadastro.getTokenExpiraEm().isBefore(LocalDateTime.now())
+                        !cadastro.getTokenExpiraEm().isAfter(LocalDateTime.now())
         ) {
             return false;
         }

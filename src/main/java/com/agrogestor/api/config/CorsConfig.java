@@ -21,13 +21,11 @@ public class CorsConfig {
         CorsConfiguration config = new CorsConfiguration();
 
         // Origens permitidas (dev local + produção)
-        config.setAllowedOriginPatterns(List.of(
+        config.setAllowedOrigins(List.of(
                 "http://localhost:5173",
                 "http://localhost:3000",
                 "https://agrogestor.duckdns.org",
-                "https://*.duckdns.org",
                 "https://agrogestor-br.vercel.app",
-                "https://*.vercel.app",
                 frontendUrl
         ));
 

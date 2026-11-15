@@ -9,6 +9,7 @@ spring:
     driver-class-name: org.mariadb.jdbc.Driver
 
   jpa:
+    open-in-view: false
     hibernate:
       ddl-auto: update
     show-sql: false
@@ -27,6 +28,10 @@ spring:
           auth: true
           starttls:
             enable: true
+            required: true
+          connectiontimeout: 5000
+          timeout: 5000
+          writetimeout: 5000
 
 server:
   port: ${PORT:8080}
@@ -40,5 +45,4 @@ jwt:
 
 # ===== URLs da aplicação =====
 app:
-  base-url: ${APP_BASE_URL:https://agrogestor-api.duckdns.org}
   frontend-url: ${APP_FRONTEND_URL:http://localhost:5173}

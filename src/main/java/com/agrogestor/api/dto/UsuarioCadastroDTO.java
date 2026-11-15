@@ -12,10 +12,12 @@ public class UsuarioCadastroDTO {
 
     @NotBlank(message = "E-mail é obrigatório")
     @Email(message = "E-mail inválido")
+    @jakarta.validation.constraints.Size(max = 255, message = "E-mail muito longo")
     private String email;
 
     @NotBlank(message = "Senha é obrigatória")
     @Size(min = 6, max = 100, message = "Senha deve ter entre 6 e 100 caracteres")
+    @com.agrogestor.api.validation.BcryptPassword
     private String senha;
 
     public UsuarioCadastroDTO() {}

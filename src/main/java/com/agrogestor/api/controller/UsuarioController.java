@@ -3,7 +3,6 @@ package com.agrogestor.api.controller;
 import com.agrogestor.api.dto.ExcluirContaDTO;
 import com.agrogestor.api.dto.MensagemRespostaDTO;
 import com.agrogestor.api.dto.UsuarioCadastroDTO;
-import com.agrogestor.api.model.CadastroPendente;
 import com.agrogestor.api.model.Usuario;
 import com.agrogestor.api.service.UsuarioService;
 
@@ -24,9 +23,9 @@ public class UsuarioController {
 
     @PostMapping
     public ResponseEntity<MensagemRespostaDTO> criar(
-            @RequestBody UsuarioCadastroDTO dto
+            @Valid @RequestBody UsuarioCadastroDTO dto
     ) {
-        CadastroPendente cadastro = usuarioService.cadastrar(dto);
+        usuarioService.cadastrar(dto);
 
         return ResponseEntity.ok(
                 new MensagemRespostaDTO(

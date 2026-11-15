@@ -18,6 +18,9 @@ public class JwtService {
     private final SecretKey key;
 
     public JwtService(JwtProperties props) {
+        if (props.getExpiration() <= 0 || props.getIssuer() == null || props.getIssuer().isBlank()) {
+            throw new IllegalArgumentException("JWT exige emissor e expiração positiva");
+        }
         this.props = props;
         this.key = Keys.hmacShaKeyFor(
                 props.getSecret().getBytes(StandardCharsets.UTF_8)
@@ -41,6 +44,15 @@ public class JwtService {
 
     public String extrairEmail(String token) {
         return parsear(token).getSubject();
+    }
+
+    /** Valida uma vez e vincula o token à conta original, inclusive após recadastro. */
+    public Claims validarClaims(String token) {
+        Claims claims = parsear(token);
+        if (claims.getExpiration() == null || claims.getSubject() == null || claims.get("id", Long.class) == null) {
+            throw new IllegalArgumentException("Token sem identidade ou expiração");
+        }
+        return claims;
     }
 
     public boolean isTokenValido(String token) {

@@ -12,7 +12,7 @@ public class AnimalRequestDTO {
     @Size(max = 40, message = "Nome muito longo")
     private String nome;
 
-    @NotNull(message = "Categoria é obrigatória")
+    @NotBlank(message = "Categoria é obrigatória")
     private String categoria;
 
     @NotNull(message = "Produção diária é obrigatória")

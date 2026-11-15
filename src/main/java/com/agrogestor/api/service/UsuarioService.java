@@ -37,15 +37,20 @@ public class UsuarioService {
         this.emailService = emailService;
     }
 
+    @Transactional
     public CadastroPendente cadastrar(UsuarioCadastroDTO dto) {
 
         if (usuarioRepository.findByEmail(dto.getEmail()).isPresent()) {
-            throw new RuntimeException("Email já cadastrado");
+            throw new com.agrogestor.api.exception.ConflictException("Email já cadastrado");
         }
 
-        if (cadastroPendenteRepository.findByEmail(dto.getEmail()).isPresent()) {
-            throw new RuntimeException("Email aguardando confirmação");
-        }
+        cadastroPendenteRepository.findByEmail(dto.getEmail()).ifPresent(pendente -> {
+            if (pendente.getTokenExpiraEm() != null && pendente.getTokenExpiraEm().isAfter(java.time.LocalDateTime.now())) {
+                throw new com.agrogestor.api.exception.ConflictException("Email aguardando confirmação");
+            }
+            cadastroPendenteRepository.delete(pendente);
+            cadastroPendenteRepository.flush();
+        });
 
         String senhaHash = passwordEncoder.encode(dto.getSenha());
         String token = UUID.randomUUID().toString();
@@ -62,7 +67,7 @@ public class UsuarioService {
         emailService.enviarEmailConfirmacao(
                 salvo.getEmail(),
                 salvo.getNome(),
-                salvo.getToken()
+                salvo.getTokenConfirmacao()
         );
 
         return salvo;
@@ -75,7 +80,7 @@ public class UsuarioService {
     @Transactional
     public void excluirConta(Usuario usuario, String senha) {
 
-        // 1. Revalida a senha (proteção contra CSRF / ação acidental)
+        // 1. Revalida a senha antes da ação destrutiva
         if (!passwordEncoder.matches(senha, usuario.getSenhaHash())) {
             throw new BadCredentialsException("Senha incorreta. Exclusão cancelada.");
         }
