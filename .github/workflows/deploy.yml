@@ -1,206 +1,111 @@
 name: Deploy Agrogestor API
 
-
 on:
-
   push:
-
     branches:
       - main
-
-
 
 concurrency:
   group: agrogestor-production
   cancel-in-progress: false
 
 jobs:
-
   tests:
     uses: ./.github/workflows/tests.yml
 
-
   deploy:
-
     needs: tests
-
-
     runs-on: self-hosted
 
-
-
     steps:
-
-
       - name: Verificar ambiente da VM
-
         run: |
-
           echo "===== SISTEMA ====="
-
           whoami
-
           uname -a
 
-
           echo "===== DOCKER ====="
-
           docker --version
-
           docker compose version
 
-
           echo "===== MEMORIA ====="
-
           free -h
 
-
           echo "===== DISCO ====="
-
           df -h
 
-
           echo "===== DOCKER USO ====="
-
           docker system df
 
-
-
-
-
       - name: Atualizar projeto na VM
-
         run: |
-
           cd /srv/apps
 
-
           if [ ! -d "agrogestor-api" ]; then
-
             git clone https://github.com/ALVAROVELAME/agrogestor-api.git
-
           fi
-
 
           cd agrogestor-api
 
-
           git fetch origin main
-
           git reset --hard "${{ github.sha }}"
-
 
           echo "Projeto atualizado"
 
-
-
-
-
       - name: Validar estrutura do projeto
-
         run: |
-
           cd /srv/apps/agrogestor-api
 
-
           test -f Dockerfile
-
           test -f docker-compose.yml
-
           test -f pom.xml
-
 
           echo "Arquivos principais encontrados"
 
-
-
-
-
       - name: Verificar container atual
-
         run: |
-
           docker ps
 
-
           if docker inspect agrogestor_api >/dev/null 2>&1
-
           then
-
             echo "Container atual encontrado"
-
           else
-
             echo "Primeira instalação"
-
           fi
 
-
-
-
-
       - name: Construir nova imagem usando cache
-
         run: |
-
           cd /srv/apps/agrogestor-api
-
 
           docker compose build --pull
 
-
-
-
-
       - name: Subir nova versão
-
         run: |
-
           cd /srv/apps/agrogestor-api
-
 
           docker compose up -d --remove-orphans
 
-
-
-
+      - name: Aguardar inicialização da aplicação
+        run: sleep 15
 
       - name: Validar resposta HTTP da API
         run: |
-          curl --fail --silent --show-error --retry 12 --retry-connrefused --retry-delay 5 --max-time 5 --retry-max-time 90 http://127.0.0.1:3002/
+          curl --fail --silent --show-error --retry 12 --retry-connrefused --retry-delay 5 --max-time 5 --retry-max-time 90 http://127.0.0.1:3002/v3/api-docs
 
       - name: Verificar aplicação
-
         run: |
-
           echo "===== CONTAINERS ====="
-
           docker ps
 
-
           echo "===== LOGS API ====="
-
           docker logs --tail 100 agrogestor_api
 
-
-
-
-
       - name: Verificar consumo
-
         run: |
-
           docker stats --no-stream
 
-
-
-
-
       - name: Limpeza segura
-
         run: |
-
           docker image prune -f
-
 
           echo "Limpeza concluída"
