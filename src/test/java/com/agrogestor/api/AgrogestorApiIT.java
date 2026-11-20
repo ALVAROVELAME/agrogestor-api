@@ -88,6 +88,59 @@ class AgrogestorApiIT {
         assertThat(animais.count()).isZero();
     }
 
+    @Test void novosRegistrosRelatoriosEIsolamentoNoBanco() throws Exception {
+        Usuario dono = ativo("dono@example.com");
+        Usuario outro = ativo("outro@example.com");
+        Animal animal = animais.save(new Animal(dono, "A1", "Mimosa", Categoria.BEZERRA, 0.0));
+        String token = bearer(dono);
+        String producao = "{\"animalId\":" + animal.getId() + ",\"data\":\"2026-01-20\",\"turno\":\"MANHA\",\"litros\":18.5}";
+        mvc.perform(post("/api/producoes").header("Authorization", token).contentType(MediaType.APPLICATION_JSON).content(producao))
+                .andExpect(status().isCreated());
+        mvc.perform(post("/api/producoes").header("Authorization", token).contentType(MediaType.APPLICATION_JSON).content(producao))
+                .andExpect(status().isConflict());
+        mvc.perform(get("/api/producoes").header("Authorization", bearer(outro)))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.content.length()").value(0));
+        mvc.perform(post("/api/producoes").header("Authorization", bearer(outro)).contentType(MediaType.APPLICATION_JSON).content(producao))
+                .andExpect(status().isNotFound());
+        mvc.perform(post("/api/financeiro/lancamentos").header("Authorization", token).contentType(MediaType.APPLICATION_JSON)
+                .content("{\"data\":\"2026-01-20\",\"tipo\":\"DESPESA\",\"descricao\":\"Ração\",\"valor\":25.50}"))
+                .andExpect(status().isCreated());
+        mvc.perform(get("/api/relatorios/financeiro").header("Authorization", token).param("inicio", "2026-01-01").param("fim", "2026-01-31"))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.saldo").value(-25.5));
+        mvc.perform(get("/api/relatorios/producao").header("Authorization", token).param("inicio", "2026-01-01").param("fim", "2026-01-31"))
+                .andExpect(status().isOk()).andExpect(jsonPath("$[0].litros").value(18.5));
+        mvc.perform(delete("/api/animais/" + animal.getId()).header("Authorization", token)).andExpect(status().isNoContent());
+        mvc.perform(get("/api/producoes").header("Authorization", token)).andExpect(status().isOk()).andExpect(jsonPath("$.content.length()").value(0));
+    }
+
+    @Test void tarefasEventosEFichaRespeitamUsuarioEAlimentamRelatorios() throws Exception {
+        Usuario dono = ativo("dono@example.com");
+        Usuario outro = ativo("outro@example.com");
+        Animal animal = animais.save(new Animal(dono, "A1", "Mimosa", Categoria.BEZERRA, 0.0));
+        String token = bearer(dono);
+        mvc.perform(patch("/api/animais/" + animal.getId() + "/ficha").header("Authorization", token)
+                .contentType(MediaType.APPLICATION_JSON).content("{\"raca\":\"Holandesa\"}"))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.raca").value("Holandesa"));
+        mvc.perform(get("/api/animais/" + animal.getId()).header("Authorization", bearer(outro)))
+                .andExpect(status().isNotFound());
+        mvc.perform(post("/api/tarefas").header("Authorization", token).contentType(MediaType.APPLICATION_JSON)
+                .content("{\"titulo\":\"Vacinar\",\"data\":\"2026-01-20\"}"))
+                .andExpect(status().isCreated());
+        mvc.perform(post("/api/eventos").header("Authorization", token).contentType(MediaType.APPLICATION_JSON)
+                .content("{\"animalId\":" + animal.getId() + ",\"data\":\"2026-01-20\",\"tipo\":\"VACINACAO\",\"descricao\":\"Vacina\"}"))
+                .andExpect(status().isCreated());
+        mvc.perform(get("/api/eventos").header("Authorization", bearer(outro)))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.content.length()").value(0));
+        mvc.perform(get("/api/indicadores").header("Authorization", token)
+                .param("inicio", "2026-01-01").param("fim", "2026-01-31").param("referencia", "2026-01-31"))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.tarefasPendentes").value(1))
+                .andExpect(jsonPath("$.tarefasAtrasadas").value(1));
+        mvc.perform(get("/api/relatorios/eventos").header("Authorization", token)
+                .param("inicio", "2026-01-01").param("fim", "2026-01-31"))
+                .andExpect(status().isOk()).andExpect(jsonPath("$[0].tipo").value("VACINACAO"))
+                .andExpect(jsonPath("$[0].quantidade").value(1));
+    }
+
     @Test void isolamentoEntreUsuariosE404ParaAnimalAlheio() throws Exception {
         Usuario dono = ativo("dono@example.com"); Usuario outro = ativo("outro@example.com");
         Animal animal = animais.save(new Animal(dono, "A1", "Mimosa", Categoria.BEZERRA, 0.0));

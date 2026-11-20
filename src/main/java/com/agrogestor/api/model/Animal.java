@@ -38,6 +38,23 @@ public class Animal {
     @Column(nullable = false)
     private LocalDateTime atualizadoEm;
 
+    private java.time.LocalDate dataNascimento;
+    @Column(length = 100)
+    private String raca;
+    @Column(length = 100)
+    private String origem;
+    @Column(length = 1000)
+    private String observacoes;
+
+    public java.time.LocalDate getDataNascimento() { return dataNascimento; }
+    public void setDataNascimento(java.time.LocalDate valor) { dataNascimento = valor; }
+    public String getRaca() { return raca; }
+    public void setRaca(String valor) { raca = valor; }
+    public String getOrigem() { return origem; }
+    public void setOrigem(String valor) { origem = valor; }
+    public String getObservacoes() { return observacoes; }
+    public void setObservacoes(String valor) { observacoes = valor; }
+
     public Animal() {}
 
     public Animal(

@@ -22,6 +22,21 @@ public class AnimalService {
         return repo.findByUsuarioIdOrderByCriadoEmDesc(usuario.getId());
     }
 
+    public Animal buscar(Usuario usuario, Long id) {
+        return repo.findByIdAndUsuarioId(id, usuario.getId())
+                .orElseThrow(() -> new com.agrogestor.api.exception.NotFoundException("Animal não encontrado"));
+    }
+
+    @org.springframework.transaction.annotation.Transactional
+    public Animal atualizarFicha(Usuario usuario, Long id, com.agrogestor.api.dto.FichaAnimalDTO dados) {
+        Animal animal = buscar(usuario, id);
+        if (dados.dataNascimento() != null) animal.setDataNascimento(dados.dataNascimento());
+        if (dados.raca() != null) animal.setRaca(dados.raca().isBlank() ? null : dados.raca().trim());
+        if (dados.origem() != null) animal.setOrigem(dados.origem().isBlank() ? null : dados.origem().trim());
+        if (dados.observacoes() != null) animal.setObservacoes(dados.observacoes().isBlank() ? null : dados.observacoes().trim());
+        return repo.save(animal);
+    }
+
     public Animal criar(Usuario usuario, AnimalRequestDTO dto) {
         Categoria cat = parseCategoria(dto.getCategoria());
 

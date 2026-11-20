@@ -2,6 +2,7 @@ package com.agrogestor.api.controller;
 
 import com.agrogestor.api.dto.AnimalRequestDTO;
 import com.agrogestor.api.dto.AnimalRespostaDTO;
+import com.agrogestor.api.dto.FichaAnimalDTO;
 import com.agrogestor.api.model.Animal;
 import com.agrogestor.api.model.Usuario;
 import com.agrogestor.api.service.AnimalService;
@@ -42,6 +43,17 @@ public class AnimalController {
     ) {
         Animal animal = service.criar(usuario, dto);
         return ResponseEntity.ok(new AnimalRespostaDTO(animal));
+    }
+
+    @GetMapping("/{id}")
+    public AnimalRespostaDTO buscar(@AuthenticationPrincipal Usuario usuario, @PathVariable Long id) {
+        return new AnimalRespostaDTO(service.buscar(usuario, id));
+    }
+
+    @PatchMapping("/{id}/ficha")
+    public AnimalRespostaDTO atualizarFicha(@AuthenticationPrincipal Usuario usuario, @PathVariable Long id,
+            @Valid @RequestBody FichaAnimalDTO dados) {
+        return new AnimalRespostaDTO(service.atualizarFicha(usuario, id, dados));
     }
 
     @PutMapping("/{id}")

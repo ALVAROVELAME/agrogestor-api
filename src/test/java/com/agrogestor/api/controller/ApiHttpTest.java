@@ -22,7 +22,7 @@ import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@WebMvcTest(controllers = {ApiController.class, AuthController.class, UsuarioController.class, AnimalController.class, RecuperacaoSenhaController.class},
+@WebMvcTest(controllers = {ApiController.class, AuthController.class, UsuarioController.class, AnimalController.class, RecuperacaoSenhaController.class, ProducaoController.class, GestaoController.class, RelatorioController.class},
         properties = {"app.frontend-url=https://frontend.example.com", "jwt.secret=chave-exclusiva-de-testes-com-mais-de-32-bytes", "jwt.issuer=teste", "jwt.expiration=60000"})
 @Import({SecurityFilterConfig.class, CorsConfig.class, JwtAuthenticationFilter.class, JwtService.class, JwtProperties.class})
 class ApiHttpTest {
@@ -34,6 +34,9 @@ class ApiHttpTest {
     @MockitoBean AnimalService animalService;
     @MockitoBean EmailConfirmationService confirmationService;
     @MockitoBean RecuperacaoSenhaService recuperacaoSenhaService;
+    @MockitoBean ProducaoService producaoService;
+    @MockitoBean GestaoService gestaoService;
+    @MockitoBean RelatorioService relatorioService;
     Usuario usuario;
     @BeforeEach void preparar() {
         usuario = new Usuario("Maria", "maria@example.com", "hash-secreto");
@@ -121,6 +124,28 @@ class ApiHttpTest {
         }
         mvc.perform(post("/api/auth/forgot-password").with(r -> { r.setRemoteAddr("192.0.2.55"); return r; })
                 .contentType(MediaType.APPLICATION_JSON).content("{\"email\":\"maria@example.com\"}")).andExpect(status().isTooManyRequests());
+    }
+    @ParameterizedTest @ValueSource(strings = {"/api/producoes", "/api/tarefas", "/api/eventos", "/api/financeiro/lancamentos", "/api/relatorios/producao", "/api/indicadores"})
+    void novasRotasExigemAutenticacao(String path) throws Exception {
+        mvc.perform(get(path)).andExpect(status().isUnauthorized());
+    }
+    @Test void rejeitaProducaoInvalida() throws Exception {
+        mvc.perform(post("/api/producoes").header("Authorization", bearer()).contentType(MediaType.APPLICATION_JSON)
+                .content("{\"animalId\":1,\"data\":\"2020-01-01\",\"turno\":\"MANHA\",\"litros\":-1}"))
+                .andExpect(status().isBadRequest());
+        verifyNoInteractions(producaoService);
+    }
+    @Test void aceitaTarefaValida() throws Exception {
+        mvc.perform(post("/api/tarefas").header("Authorization", bearer()).contentType(MediaType.APPLICATION_JSON)
+                .content("{\"titulo\":\"Verificar água\",\"data\":\"2025-01-01\"}"))
+                .andExpect(status().isCreated());
+        verify(gestaoService).criarTarefa(eq(usuario), any());
+    }
+    @Test void rejeitaValoresFinanceirosInvalidos() throws Exception {
+        mvc.perform(post("/api/financeiro/lancamentos").header("Authorization", bearer()).contentType(MediaType.APPLICATION_JSON)
+                .content("{\"descricao\":\"Ração\",\"tipo\":\"DESPESA\",\"data\":\"2025-01-01\",\"valor\":-10}"))
+                .andExpect(status().isBadRequest());
+        verifyNoInteractions(gestaoService);
     }
     @Test void redefinicaoRejeitaSenhaAcimaDoLimiteDoBcrypt() throws Exception {
         mvc.perform(post("/api/auth/reset-password").contentType(MediaType.APPLICATION_JSON)
