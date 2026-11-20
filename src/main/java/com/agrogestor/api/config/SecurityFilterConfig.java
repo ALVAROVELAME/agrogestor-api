@@ -60,6 +60,7 @@ public class SecurityFilterConfig {
                         // -------- PÚBLICAS --------
                         .requestMatchers(HttpMethod.POST, "/api/usuarios").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/auth/forgot-password", "/api/auth/reset-password").permitAll()
                         .requestMatchers(HttpMethod.GET,  "/api/auth/confirmar").permitAll()
 
                         .requestMatchers(

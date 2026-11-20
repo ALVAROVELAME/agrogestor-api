@@ -22,7 +22,7 @@ import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@WebMvcTest(controllers = {ApiController.class, AuthController.class, UsuarioController.class, AnimalController.class},
+@WebMvcTest(controllers = {ApiController.class, AuthController.class, UsuarioController.class, AnimalController.class, RecuperacaoSenhaController.class},
         properties = {"app.frontend-url=https://frontend.example.com", "jwt.secret=chave-exclusiva-de-testes-com-mais-de-32-bytes", "jwt.issuer=teste", "jwt.expiration=60000"})
 @Import({SecurityFilterConfig.class, CorsConfig.class, JwtAuthenticationFilter.class, JwtService.class, JwtProperties.class})
 class ApiHttpTest {
@@ -33,6 +33,7 @@ class ApiHttpTest {
     @MockitoBean AuthService authService;
     @MockitoBean AnimalService animalService;
     @MockitoBean EmailConfirmationService confirmationService;
+    @MockitoBean RecuperacaoSenhaService recuperacaoSenhaService;
     Usuario usuario;
     @BeforeEach void preparar() {
         usuario = new Usuario("Maria", "maria@example.com", "hash-secreto");
@@ -92,6 +93,39 @@ class ApiHttpTest {
         when(confirmationService.confirmarEmail("valido")).thenReturn(true);
         mvc.perform(get("/api/auth/confirmar").param("token", "valido")).andExpect(status().isOk());
         mvc.perform(get("/api/auth/confirmar").param("token", "expirado")).andExpect(status().isBadRequest());
+    }
+    @Test void recuperacaoAceitaAcessoPublicoEValidaDados() throws Exception {
+        mvc.perform(post("/api/auth/forgot-password").contentType(MediaType.APPLICATION_JSON)
+                .content("{\"email\":\"maria@example.com\"}")).andExpect(status().isOk());
+        verify(recuperacaoSenhaService).solicitar("maria@example.com");
+        mvc.perform(post("/api/auth/forgot-password").contentType(MediaType.APPLICATION_JSON)
+                .content("{\"email\":\"invalido\"}")).andExpect(status().isBadRequest());
+    }
+    @Test void redefinicaoRejeitaTokenInvalidoEConfirmaSucesso() throws Exception {
+        when(recuperacaoSenhaService.redefinir("valido", "segredo")).thenReturn(true);
+        mvc.perform(post("/api/auth/reset-password").contentType(MediaType.APPLICATION_JSON)
+                .content("{\"token\":\"invalido\",\"senha\":\"segredo\"}")).andExpect(status().isBadRequest());
+        mvc.perform(post("/api/auth/reset-password").contentType(MediaType.APPLICATION_JSON)
+                .content("{\"token\":\"valido\",\"senha\":\"segredo\"}")).andExpect(status().isOk());
+    }
+    @Test void trocarSenhaInvalidaJwtAntigo() throws Exception {
+        String antigo = bearer();
+        usuario.redefinirSenha("novo-hash");
+        mvc.perform(get("/api/auth/me").header("Authorization", antigo)).andExpect(status().isUnauthorized());
+        mvc.perform(get("/api/auth/me").header("Authorization", bearer())).andExpect(status().isOk());
+    }
+    @Test void recuperacaoLimitaTentativasPorEndereco() throws Exception {
+        for (int i = 0; i < 10; i++) {
+            mvc.perform(post("/api/auth/forgot-password").with(r -> { r.setRemoteAddr("192.0.2.55"); return r; })
+                    .contentType(MediaType.APPLICATION_JSON).content("{\"email\":\"maria@example.com\"}")).andExpect(status().isOk());
+        }
+        mvc.perform(post("/api/auth/forgot-password").with(r -> { r.setRemoteAddr("192.0.2.55"); return r; })
+                .contentType(MediaType.APPLICATION_JSON).content("{\"email\":\"maria@example.com\"}")).andExpect(status().isTooManyRequests());
+    }
+    @Test void redefinicaoRejeitaSenhaAcimaDoLimiteDoBcrypt() throws Exception {
+        mvc.perform(post("/api/auth/reset-password").contentType(MediaType.APPLICATION_JSON)
+                .content("{\"token\":\"valido\",\"senha\":\"" + "á".repeat(37) + "\"}"))
+                .andExpect(status().isBadRequest());
     }
     @Test void listaSomenteDadosDoPrincipal() throws Exception {
         when(animalService.listarDoUsuario(usuario)).thenReturn(List.of());

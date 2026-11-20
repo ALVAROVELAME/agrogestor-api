@@ -49,8 +49,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 String email = claims.getSubject();
                 Optional<Usuario> usuarioOpt = usuarioRepository.findByEmail(email);
 
+                Long versao = claims.get("versao", Long.class);
                 if (usuarioOpt.isPresent() && Boolean.TRUE.equals(usuarioOpt.get().getAtivo())
-                        && java.util.Objects.equals(usuarioOpt.get().getId(), claims.get("id", Long.class))) {
+                        && java.util.Objects.equals(usuarioOpt.get().getId(), claims.get("id", Long.class))
+                        && usuarioOpt.get().getVersaoSessao() == (versao == null ? 0L : versao)) {
                     Usuario usuario = usuarioOpt.get();
 
                     UsernamePasswordAuthenticationToken auth =

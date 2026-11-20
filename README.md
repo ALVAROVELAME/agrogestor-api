@@ -1185,3 +1185,18 @@ git commit -m "feat: adiciona endpoint de relatórios"
 **AgroGestor API** — backend para gestão inteligente de rebanho
 
 [⬆ Voltar ao topo](#-agrogestor-api)
+# Recuperação de senha
+
+Os endpoints públicos `POST /api/auth/forgot-password` (JSON `{"email":"..."}`) e
+`POST /api/auth/reset-password` (JSON `{"token":"...","senha":"..."}`) permitem
+recuperar o acesso. A resposta de solicitação é genérica; o link enviado por e-mail
+expira em 30 minutos e só pode ser usado uma vez. A redefinição invalida os JWTs
+anteriores. O envio usa as configurações SMTP e `APP_FRONTEND_URL` existentes.
+
+O Hibernate está configurado com `ddl-auto: update`: a implantação exige permissão
+para adicionar colunas à tabela de usuários. Em produção, planeje e valide a
+migração de esquema antes de publicar. O limite de tentativas atual é local a cada
+instância e utiliza o endereço visto pela aplicação; em múltiplas instâncias ou
+atrás de proxy, configure também limitação compartilhada e cabeçalhos de origem
+confiáveis no provedor de infraestrutura.
+

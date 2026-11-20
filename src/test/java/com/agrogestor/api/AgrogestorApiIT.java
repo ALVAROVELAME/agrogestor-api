@@ -98,6 +98,23 @@ class AgrogestorApiIT {
         assertThat(animais.findById(animal.getId()).orElseThrow().getNome()).isEqualTo("Mimosa");
     }
 
+    @Test void recuperacaoAlteraSenhaUmaVezEInvalidaSessoesAnteriores() throws Exception {
+        Usuario usuario = ativo("maria@example.com");
+        String antigo = bearer(usuario);
+        mvc.perform(post("/api/auth/forgot-password").contentType(MediaType.APPLICATION_JSON)
+                .content("{\"email\":\"maria@example.com\"}")).andExpect(status().isOk());
+        org.mockito.ArgumentCaptor<SimpleMailMessage> email = org.mockito.ArgumentCaptor.forClass(SimpleMailMessage.class);
+        verify(mailSender).send(email.capture());
+        String texto = email.getValue().getText();
+        String token = texto.split("token=")[1].split("\\s")[0];
+        String corpo = "{\"token\":\"" + token + "\",\"senha\":\"novaSenha123\"}";
+        mvc.perform(post("/api/auth/reset-password").contentType(MediaType.APPLICATION_JSON).content(corpo)).andExpect(status().isOk());
+        mvc.perform(post("/api/auth/reset-password").contentType(MediaType.APPLICATION_JSON).content(corpo)).andExpect(status().isBadRequest());
+        mvc.perform(get("/api/auth/me").header("Authorization", antigo)).andExpect(status().isUnauthorized());
+        mvc.perform(post("/api/auth/login").contentType(MediaType.APPLICATION_JSON)
+                .content("{\"email\":\"maria@example.com\",\"senha\":\"novaSenha123\"}")).andExpect(status().isOk());
+    }
+
     @Test void exclusaoRemoveSomenteDadosDoDonoEInvalidaToken() throws Exception {
         Usuario dono = ativo("dono@example.com"); Usuario outro = ativo("outro@example.com");
         animais.save(new Animal(dono, "A1", "Mimosa", Categoria.BEZERRA, 0.0));

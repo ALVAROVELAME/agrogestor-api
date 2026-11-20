@@ -43,6 +43,28 @@ public class Usuario {
     @Column(nullable = false)
     private LocalDateTime criadoEm;
 
+    @Column(unique = true, length = 64)
+    private String recuperacaoTokenHash;
+    private LocalDateTime recuperacaoExpiraEm;
+    private LocalDateTime recuperacaoSolicitadaEm;
+    private Long versaoSessao;
+
+    public String getRecuperacaoTokenHash() { return recuperacaoTokenHash; }
+    public LocalDateTime getRecuperacaoExpiraEm() { return recuperacaoExpiraEm; }
+    public LocalDateTime getRecuperacaoSolicitadaEm() { return recuperacaoSolicitadaEm; }
+    public long getVersaoSessao() { return versaoSessao == null ? 0L : versaoSessao; }
+    public void iniciarRecuperacao(String hash, LocalDateTime agora) {
+        recuperacaoTokenHash = hash;
+        recuperacaoSolicitadaEm = agora;
+        recuperacaoExpiraEm = agora.plusMinutes(30);
+    }
+    public void redefinirSenha(String hash) {
+        senhaHash = hash;
+        recuperacaoTokenHash = null;
+        recuperacaoExpiraEm = null;
+        versaoSessao = getVersaoSessao() + 1;
+    }
+
 
     public Usuario() {
 

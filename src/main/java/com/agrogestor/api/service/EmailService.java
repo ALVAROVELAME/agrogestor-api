@@ -24,6 +24,17 @@ public class EmailService {
         this.mailSender = mailSender;
     }
 
+    public void enviarEmailRecuperacao(String email, String token) {
+        SimpleMailMessage mensagem = new SimpleMailMessage();
+        mensagem.setFrom(mailFrom);
+        mensagem.setTo(email);
+        mensagem.setSubject("Redefinição de senha - AgroGestor");
+        mensagem.setText("Para redefinir sua senha, acesse:\n\n" + frontendUrl
+                + "/reset-password?token=" + token
+                + "\n\nO link é válido por 30 minutos e pode ser usado uma vez. Se você não solicitou, ignore este e-mail.");
+        mailSender.send(mensagem);
+    }
+
     public void enviarEmailConfirmacao(
             String email,
             String nome,
