@@ -20,6 +20,9 @@ jobs:
           distribution: temurin
           java-version: '17'
           cache: maven
+
+      - name: Testar verificação de inicialização do deploy
+        run: bash .github/scripts/test-wait-for-api.sh
           
       - name: Testes unitários, HTTP e integração com MariaDB
         run: ./mvnw -B clean verify

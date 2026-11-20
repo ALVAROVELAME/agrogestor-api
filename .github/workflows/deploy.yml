@@ -87,18 +87,8 @@ jobs:
 
       - name: Aguardar a aplicação responder (Healthcheck dinâmico)
         run: |
-          echo "Aguardando o Spring Boot iniciar e responder..."
-          for i in {1..30}; do
-            if curl --silent --fail http://127.0.0.1:3002/v3/api-docs > /dev/null 2>&1; then
-              echo "API respondeu com sucesso na tentativa $i!"
-              exit 0
-            fi
-            echo "Tentativa $i/30: Aplicação ainda subindo, aguardando 3 segundos..."
-            sleep 3
-          done
-          echo "Erro: A aplicação não respondeu a tempo."
-          docker logs --tail 150 agrogestor_api
-          exit 1
+          cd /srv/apps/agrogestor-api
+          bash .github/scripts/wait-for-api.sh
 
       - name: Verificar aplicação
         run: |
