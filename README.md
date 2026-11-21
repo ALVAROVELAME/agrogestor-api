@@ -18,7 +18,7 @@ API REST desenvolvida com Spring Boot para gerenciamento de rebanho leiteiro, co
 
 O **AgroGestor API** é o backend do sistema AgroGestor, uma aplicação voltada à gestão de rebanho leiteiro.
 
-A API fornece recursos para autenticação, cadastro de usuários, confirmação de e-mail e gerenciamento de animais, utilizando uma arquitetura REST organizada em camadas e isolamento de dados por usuário.
+A API oferece autenticação, contas, recuperação de senha, gestão de animais, produção, tarefas, eventos, lançamentos financeiros e relatórios, com arquitetura REST em camadas e isolamento de dados por usuário.
 
 Além da aplicação, o projeto possui uma infraestrutura de produção baseada em **máquinas virtuais, Docker, Nginx, banco de dados separado, HTTPS com renovação automatizada de certificados e pipeline de deploy automatizado**.
 
@@ -52,6 +52,7 @@ Além da aplicação, o projeto possui uma infraestrutura de produção baseada 
 * ✅ Endpoint `/me` para consultar o usuário autenticado
 * ✅ Exclusão de conta mediante confirmação por senha
 * ✅ Senhas armazenadas com **BCrypt**
+* ✅ Recuperação de senha por e-mail com token de uso único
 
 ### Rebanho
 
@@ -60,6 +61,13 @@ Além da aplicação, o projeto possui uma infraestrutura de produção baseada 
 * ✅ Atualização por ID
 * ✅ Exclusão por ID
 * ✅ Isolamento de dados entre usuários
+* ✅ Ficha do animal com dados complementares
+
+### Produção e gestão
+
+* Registro de produção por animal, data e turno
+* Tarefas, eventos e lançamentos financeiros
+* Relatórios e indicadores, com exportação CSV
 
 ---
 
@@ -337,73 +345,25 @@ A arquitetura foi estruturada seguindo alguns princípios:
 
 ```text
 agrogestor-api/
-├── .github/
-│   └── workflows/
-│       ├── deploy.yml
-│       └── tests.yml
-├── .mvn/
-│   └── wrapper/
+├── .github/                 # workflows de testes e deploy, e scripts de verificação
+├── .mvn/wrapper/            # Maven Wrapper
+├── docs/                    # revisão técnica e detalhes das funcionalidades
+├── scripts/                 # verificação de dependências
 ├── src/
-│   ├── main/
-│   │   ├── java/com/agrogestor/api/
-│   │   │   ├── AgrogestorApiApplication.java
-│   │   │   ├── config/
-│   │   │   │   ├── CorsConfig.java
-│   │   │   │   ├── JwtProperties.java
-│   │   │   │   ├── SecurityConfig.java
-│   │   │   │   └── SecurityFilterConfig.java
-│   │   │   ├── controller/
-│   │   │   │   ├── AnimalController.java
-│   │   │   │   ├── ApiController.java
-│   │   │   │   ├── AuthController.java
-│   │   │   │   └── UsuarioController.java
-│   │   │   ├── dto/
-│   │   │   │   ├── AnimalRequestDTO.java
-│   │   │   │   ├── AnimalRespostaDTO.java
-│   │   │   │   ├── ExcluirContaDTO.java
-│   │   │   │   ├── LoginDTO.java
-│   │   │   │   ├── LoginRespostaDTO.java
-│   │   │   │   ├── MensagemRespostaDTO.java
-│   │   │   │   ├── UsuarioCadastroDTO.java
-│   │   │   │   └── UsuarioRespostaDTO.java
-│   │   │   ├── exception/
-│   │   │   │   ├── GlobalExceptionHandler.java
-│   │   │   │   ├── ConflictException.java
-│   │   │   │   └── NotFoundException.java
-│   │   │   ├── model/
-│   │   │   │   ├── Animal.java
-│   │   │   │   ├── CadastroPendente.java
-│   │   │   │   ├── Categoria.java
-│   │   │   │   └── Usuario.java
-│   │   │   ├── repository/
-│   │   │   │   ├── AnimalRepository.java
-│   │   │   │   ├── CadastroPendenteRepository.java
-│   │   │   │   └── UsuarioRepository.java
-│   │   │   ├── security/
-│   │   │   │   └── JwtAuthenticationFilter.java
-│   │   │   ├── validation/
-│   │   │   │   ├── BcryptPassword.java
-│   │   │   │   └── BcryptPasswordValidator.java
-│   │   │   └── service/
-│   │   │       ├── AnimalService.java
-│   │   │       ├── AuthService.java
-│   │   │       ├── EmailConfirmationService.java
-│   │   │       ├── EmailService.java
-│   │   │       ├── JwtService.java
-│   │   │       └── UsuarioService.java
-│   │   └── resources/
-│   │       └── application.yml
-│   └── test/
-│       ├── java/com/agrogestor/api/
-│       │   ├── AgrogestorApiIT.java
-│       │   ├── controller/
-│       │   ├── service/
-│       │   └── validation/
-│       └── resources/application-test.yml
-├── scripts/check_dependencies.py
-├── docs/REVISAO.md
-├── .env.example
-├── .dockerignore
+│   ├── main/java/com/agrogestor/api/
+│   │   ├── config/          # segurança, CORS e propriedades JWT
+│   │   ├── controller/      # endpoints REST; conta/ reúne os de conta
+│   │   ├── dto/             # entrada e saída; animal/, auth/ e usuario/
+│   │   ├── exception/       # exceções e tratamento global
+│   │   ├── model/           # entidades; conta/ reúne usuário e cadastro
+│   │   ├── repository/      # persistência; conta/ reúne repositórios de conta
+│   │   ├── security/        # filtro JWT
+│   │   ├── service/         # regras de negócio; auth/ e pecuaria/
+│   │   └── validation/      # validação de senhas BCrypt
+│   ├── main/resources/      # configuração da aplicação
+│   └── test/                # testes unitários, HTTP e de integração
+├── logs/                    # logs locais, quando existentes (ignorados pelo Git)
+├── .env.example             # exemplo de configuração
 ├── Dockerfile
 ├── docker-compose.yml
 ├── pom.xml
@@ -431,6 +391,8 @@ agrogestor-api/
 | `POST` | `/api/auth/login`               | Autenticação          |
 | `GET`  | `/api/auth/confirmar?token=...` | Confirmação de e-mail |
 | `POST` | `/api/usuarios`                 | Inicia cadastro       |
+| `POST` | `/api/auth/forgot-password` | Solicita recuperação de senha |
+| `POST` | `/api/auth/reset-password` | Redefine senha com token |
 
 ## 🔐 Protegidos
 
@@ -448,6 +410,21 @@ Authorization: Bearer <token>
 | `POST`   | `/api/animais`      | Cria animal                   |
 | `PUT`    | `/api/animais/{id}` | Atualiza animal               |
 | `DELETE` | `/api/animais/{id}` | Exclui animal                 |
+| `GET` | `/api/animais/{id}` | Consulta animal |
+| `PATCH` | `/api/animais/{id}/ficha` | Atualiza dados complementares |
+| `GET`, `POST` | `/api/producoes` | Lista e registra produção |
+| `PUT`, `DELETE` | `/api/producoes/{id}` | Atualiza ou exclui produção |
+| `GET`, `POST` | `/api/tarefas` | Lista e cria tarefas |
+| `PATCH`, `DELETE` | `/api/tarefas/{id}` | Atualiza ou exclui tarefa |
+| `GET`, `POST` | `/api/eventos` | Lista e cria eventos |
+| `PUT`, `DELETE` | `/api/eventos/{id}` | Atualiza ou exclui evento |
+| `GET`, `POST` | `/api/financeiro/lancamentos` | Lista e cria lançamentos |
+| `PUT`, `DELETE` | `/api/financeiro/lancamentos/{id}` | Atualiza ou exclui lançamento |
+| `GET` | `/api/relatorios/producao`, `/api/relatorios/financeiro`, `/api/relatorios/eventos` | Consulta relatórios |
+| `GET` | `/api/indicadores` | Consulta indicadores |
+| `GET` | `/api/relatorios/exportacao` | Exporta relatório agregado em CSV |
+
+As listagens de produção, tarefas, eventos e lançamentos usam `pagina` (inicia em 0) e `tamanho` (1 a 100; padrão 20). Os relatórios exigem `inicio` e `fim` no formato `AAAA-MM-DD`, com intervalo de até 366 dias; indicadores também exigem `referencia`. A exportação usa `tipo=PRODUCAO`, `FINANCEIRO` ou `EVENTOS`. Filtros, exemplos e regras estão em [docs/novas-funcionalidades-api.md](docs/novas-funcionalidades-api.md).
 
 ## ⚠️ Respostas de erro
 
@@ -458,6 +435,7 @@ Authorization: Bearer <token>
 | `403` | Conta ainda não confirmada no login, após validação da senha, ou origem CORS não permitida |
 | `404` | Animal inexistente ou pertencente a outro usuário |
 | `409` | E-mail já cadastrado, confirmação ainda pendente ou conflito de integridade |
+| `429` | Limite de tentativas de recuperação de senha atingido |
 | `500` | Falha interna, sem detalhes sensíveis na resposta |
 
 ## 📘 Documentação interativa
@@ -583,6 +561,8 @@ curl -X DELETE https://agrogestor-api.duckdns.org/api/usuarios/me \
 | `token_expira_em`     | DATETIME | nullable           |
 | `email_confirmado_em` | DATETIME | nullable           |
 | `criado_em`           | DATETIME | NOT NULL           |
+| `recuperacao_token_hash`, `recuperacao_expira_em`, `recuperacao_solicitada_em` | VARCHAR/DATETIME | Recuperação de senha |
+| `versao_sessao` | BIGINT | Versão usada para invalidar sessões |
 
 ## `animais`
 
@@ -596,6 +576,7 @@ curl -X DELETE https://agrogestor-api.duckdns.org/api/usuarios/me \
 | `producao_diaria` | DOUBLE   | NOT NULL                     |
 | `criado_em`       | DATETIME | NOT NULL                     |
 | `atualizado_em`   | DATETIME | NOT NULL                     |
+| `data_nascimento`, `raca`, `origem`, `observacoes` | DATE/VARCHAR | Dados opcionais da ficha |
 
 ## `cadastros_pendentes`
 
@@ -608,6 +589,10 @@ curl -X DELETE https://agrogestor-api.duckdns.org/api/usuarios/me \
 | `token_confirmacao` | VARCHAR  | NOT NULL, UNIQUE   |
 | `token_expira_em`   | DATETIME | NOT NULL           |
 | `criado_em`         | DATETIME | NOT NULL           |
+
+## `producoes` e `registros_gestao`
+
+`producoes` associa usuário e animal a data, turno e litros, com unicidade por animal, data e turno. `registros_gestao` armazena tarefas, eventos e lançamentos financeiros, vinculados ao usuário e, quando aplicável, a um animal. A exclusão do animal remove seus registros associados.
 
 ---
 
@@ -676,6 +661,22 @@ curl -X DELETE https://agrogestor-api.duckdns.org/api/usuarios/me \
 └───────────────────────────────────────────────────────────┘
 ```
 
+
+## Recuperação de senha
+
+Os endpoints públicos `POST /api/auth/forgot-password` (JSON `{"email":"..."}`) e
+`POST /api/auth/reset-password` (JSON `{"token":"...","senha":"..."}`) permitem
+recuperar o acesso. A resposta de solicitação é genérica; o link enviado por e-mail
+expira em 30 minutos e só pode ser usado uma vez. A redefinição invalida os JWTs
+anteriores. O envio usa as configurações SMTP e `APP_FRONTEND_URL` existentes.
+
+O Hibernate está configurado com `ddl-auto: update`: a implantação exige permissão
+para adicionar colunas à tabela de usuários. Em produção, planeje e valide a
+migração de esquema antes de publicar. O limite de tentativas atual é local a cada
+instância e utiliza o endereço visto pela aplicação; em múltiplas instâncias ou
+atrás de proxy, configure também limitação compartilhada e cabeçalhos de origem
+confiáveis no provedor de infraestrutura.
+
 ---
 
 # 🏗️ Arquitetura em camadas
@@ -721,8 +722,8 @@ curl -X DELETE https://agrogestor-api.duckdns.org/api/usuarios/me \
 ## Pré-requisitos
 
 * **Java 17**
-* **Docker**
-* **Docker Compose**
+* **MariaDB acessível e configuração SMTP**
+* **Docker e Docker Compose** para execução em contêiner ou testes de integração
 * **Git**
 
 ## Opção 1 — Docker Compose
@@ -743,6 +744,8 @@ cp .env.example .env
 ```
 
 Edite os valores de acordo com seu ambiente local. O Compose deste repositório publica a API em `127.0.0.1:3002` e requer um MariaDB externo acessível pelo container. No Docker Desktop, `host.docker.internal` permite acessar um banco executado no host. O banco não é criado pelo Compose.
+
+A porta interna do Compose é `8080`; mantenha `PORT=8080` ao usar o mapeamento padrão. Para execução direta no host, ajuste `DB_HOST` para o endereço acessível pelo host.
 
 ### 3. Suba a aplicação
 
@@ -787,7 +790,7 @@ Exemplo de configuração local:
 
 ```env
 # ===== BANCO DE DADOS =====
-DB_HOST=mariadb
+DB_HOST=host.docker.internal
 DB_PORT=3306
 DB_NAME=agrogestor
 DB_USER=agrogestor
@@ -806,7 +809,7 @@ MAIL_PASSWORD=sua_credencial_local
 MAIL_FROM=AgroGestor <seu_email@exemplo.com>
 
 # ===== APLICAÇÃO =====
-APP_FRONTEND_URL=http://localhost:3000
+APP_FRONTEND_URL=http://localhost:5173
 
 # ===== PORTA =====
 PORT=8080
@@ -874,7 +877,7 @@ services:
     deploy:
       resources:
         limits:
-          memory: 300M
+          memory: 400M
           cpus: "0.50"
 ```
 
@@ -951,7 +954,7 @@ No Windows/PowerShell:
 .\mvnw.cmd test
 ```
 
-Os serviços usam Mockito para simular repositórios e SMTP. Os testes HTTP usam MockMvc com a cadeia real de segurança e tokens JWT assinados, verificando todos os endpoints, validação, autenticação, CORS e respostas de erro.
+Os serviços usam Mockito para simular repositórios e SMTP. Os testes HTTP usam MockMvc com a cadeia real de segurança e tokens JWT assinados, verificando rotas, validação, autenticação, CORS e respostas de erro.
 
 ## Suíte completa, incluindo integração
 
@@ -986,7 +989,7 @@ O Maven Surefire executa `*Test`; o Failsafe executa `*IT` durante `verify`. Sem
 
 ## Resultados e cobertura
 
-Na revisão de 15/11/2026, os **72 testes passaram** (64 unitários/HTTP e 8 de integração), com **94,93% de cobertura de linhas** e **87,04% de ramos**. Os valores são um retrato dessa execução; consulte o relatório gerado para a versão atual.
+Na execução local de 21/11/2026, `clean test jacoco:report` concluiu **99 testes unitários e HTTP**, com **89,9% de cobertura de linhas** e **73,8% de ramificações**. Os testes de integração não foram executados nessa medição porque o Docker estava indisponível. A cobertura é um retrato dessa execução; gere novamente o relatório para avaliar alterações posteriores.
 
 Após `verify`, consulte:
 
@@ -1130,14 +1133,15 @@ API AgroGestor funcionando
 * Renovação automática de certificados TLS
 * Deploy automatizado com GitHub Actions
 * Tratamento global de exceções
+* Recuperação de senha, produção, gestão e relatórios
+* Testes de integração com Testcontainers
 
 ## Em planejamento 📋
 
 * Refresh token
-* Rate limiting por IP
+* Limitação de requisições compartilhada entre instâncias
 * Logs estruturados em JSON
 * Métricas com Prometheus/Grafana
-* Testes de integração com Testcontainers
 * Migrations com Flyway
 * Multi-fazenda por usuário
 * Auditoria de ações
@@ -1185,18 +1189,3 @@ git commit -m "feat: adiciona endpoint de relatórios"
 **AgroGestor API** — backend para gestão inteligente de rebanho
 
 [⬆ Voltar ao topo](#-agrogestor-api)
-# Recuperação de senha
-
-Os endpoints públicos `POST /api/auth/forgot-password` (JSON `{"email":"..."}`) e
-`POST /api/auth/reset-password` (JSON `{"token":"...","senha":"..."}`) permitem
-recuperar o acesso. A resposta de solicitação é genérica; o link enviado por e-mail
-expira em 30 minutos e só pode ser usado uma vez. A redefinição invalida os JWTs
-anteriores. O envio usa as configurações SMTP e `APP_FRONTEND_URL` existentes.
-
-O Hibernate está configurado com `ddl-auto: update`: a implantação exige permissão
-para adicionar colunas à tabela de usuários. Em produção, planeje e valide a
-migração de esquema antes de publicar. O limite de tentativas atual é local a cada
-instância e utiliza o endereço visto pela aplicação; em múltiplas instâncias ou
-atrás de proxy, configure também limitação compartilhada e cabeçalhos de origem
-confiáveis no provedor de infraestrutura.
-

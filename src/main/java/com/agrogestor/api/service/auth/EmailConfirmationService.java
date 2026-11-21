@@ -1,0 +1,64 @@
+package com.agrogestor.api.service.auth;
+
+import com.agrogestor.api.model.conta.CadastroPendente;
+import com.agrogestor.api.model.conta.Usuario;
+import com.agrogestor.api.repository.conta.CadastroPendenteRepository;
+import com.agrogestor.api.repository.conta.UsuarioRepository;
+
+import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
+import java.util.Optional;
+
+@Service
+public class EmailConfirmationService {
+
+    private final CadastroPendenteRepository cadastroPendenteRepository;
+    private final UsuarioRepository usuarioRepository;
+
+    public EmailConfirmationService(
+            CadastroPendenteRepository cadastroPendenteRepository,
+            UsuarioRepository usuarioRepository
+    ) {
+
+        this.cadastroPendenteRepository = cadastroPendenteRepository;
+        this.usuarioRepository = usuarioRepository;
+
+    }
+
+    @org.springframework.transaction.annotation.Transactional
+    public boolean confirmarEmail(String token) {
+
+        Optional<CadastroPendente> cadastroOptional =
+                cadastroPendenteRepository.findByTokenConfirmacao(token);
+
+        if (cadastroOptional.isEmpty()) {
+            return false;
+        }
+
+        CadastroPendente cadastro = cadastroOptional.get();
+
+        if (
+                cadastro.getTokenExpiraEm() == null ||
+                        !cadastro.getTokenExpiraEm().isAfter(LocalDateTime.now())
+        ) {
+            return false;
+        }
+
+        Usuario usuario = new Usuario(
+                cadastro.getNome(),
+                cadastro.getEmail(),
+                cadastro.getSenhaHash()
+        );
+
+        usuario.ativarConta();
+
+        usuarioRepository.save(usuario);
+
+        cadastroPendenteRepository.delete(cadastro);
+
+        return true;
+
+    }
+
+}

@@ -1,5 +1,7 @@
 package com.agrogestor.api.model;
 
+import com.agrogestor.api.model.conta.Usuario;
+
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 

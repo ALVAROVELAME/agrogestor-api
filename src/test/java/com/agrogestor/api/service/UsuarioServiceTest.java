@@ -1,8 +1,11 @@
 package com.agrogestor.api.service;
 
-import com.agrogestor.api.dto.UsuarioCadastroDTO;
-import com.agrogestor.api.model.*;
+import com.agrogestor.api.dto.usuario.UsuarioCadastroDTO;
+import com.agrogestor.api.model.conta.Usuario;
+import com.agrogestor.api.model.conta.CadastroPendente;
 import com.agrogestor.api.repository.*;
+import com.agrogestor.api.repository.conta.UsuarioRepository;
+import com.agrogestor.api.repository.conta.CadastroPendenteRepository;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;

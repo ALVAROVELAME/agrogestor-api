@@ -2,8 +2,8 @@ package com.agrogestor.api.controller;
 
 import com.agrogestor.api.dto.ProducaoDTO;
 import com.agrogestor.api.model.Producao;
-import com.agrogestor.api.model.Usuario;
-import com.agrogestor.api.service.ProducaoService;
+import com.agrogestor.api.model.conta.Usuario;
+import com.agrogestor.api.service.pecuaria.ProducaoService;
 import jakarta.validation.Valid;
 import java.time.LocalDate;
 import org.springframework.data.domain.Page;

@@ -3,6 +3,7 @@ package com.agrogestor.api.service;
 import com.agrogestor.api.dto.GestaoDTO;
 import com.agrogestor.api.exception.NotFoundException;
 import com.agrogestor.api.model.*;
+import com.agrogestor.api.model.conta.Usuario;
 import com.agrogestor.api.repository.*;
 import java.time.LocalDate;
 import org.springframework.data.domain.*;

@@ -1,6 +1,8 @@
 package com.agrogestor.api.validation;
 
-import com.agrogestor.api.dto.*;
+import com.agrogestor.api.dto.auth.LoginDTO;
+import com.agrogestor.api.dto.usuario.ExcluirContaDTO;
+import com.agrogestor.api.dto.usuario.UsuarioCadastroDTO;
 import jakarta.validation.*;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.ParameterizedTest;

@@ -1,6 +1,6 @@
 package com.agrogestor.api.controller;
 
-import com.agrogestor.api.model.Usuario;
+import com.agrogestor.api.model.conta.Usuario;
 import com.agrogestor.api.service.RelatorioService;
 import java.time.LocalDate;
 import java.util.List;

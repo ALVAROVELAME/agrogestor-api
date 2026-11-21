@@ -1,7 +1,7 @@
 package com.agrogestor.api.service;
 
 import com.agrogestor.api.model.RegistroGestao;
-import com.agrogestor.api.model.Usuario;
+import com.agrogestor.api.model.conta.Usuario;
 import com.agrogestor.api.repository.ProducaoRepository;
 import com.agrogestor.api.repository.RegistroGestaoRepository;
 import java.math.BigDecimal;

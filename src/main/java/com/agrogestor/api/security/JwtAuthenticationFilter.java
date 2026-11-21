@@ -1,8 +1,8 @@
 package com.agrogestor.api.security;
 
-import com.agrogestor.api.model.Usuario;
-import com.agrogestor.api.repository.UsuarioRepository;
-import com.agrogestor.api.service.JwtService;
+import com.agrogestor.api.model.conta.Usuario;
+import com.agrogestor.api.repository.conta.UsuarioRepository;
+import com.agrogestor.api.service.auth.JwtService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

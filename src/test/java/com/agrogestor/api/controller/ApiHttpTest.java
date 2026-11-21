@@ -2,9 +2,16 @@ package com.agrogestor.api.controller;
 
 import com.agrogestor.api.config.*;
 import com.agrogestor.api.model.*;
-import com.agrogestor.api.repository.UsuarioRepository;
+import com.agrogestor.api.model.conta.Usuario;
+import com.agrogestor.api.repository.conta.UsuarioRepository;
 import com.agrogestor.api.security.JwtAuthenticationFilter;
 import com.agrogestor.api.service.*;
+import com.agrogestor.api.service.pecuaria.AnimalService;
+import com.agrogestor.api.service.pecuaria.ProducaoService;
+import com.agrogestor.api.service.auth.*;
+import com.agrogestor.api.controller.conta.AuthController;
+import com.agrogestor.api.controller.conta.RecuperacaoSenhaController;
+import com.agrogestor.api.controller.conta.UsuarioController;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -45,6 +52,26 @@ class ApiHttpTest {
     String bearer() {
         when(usuarios.findByEmail(usuario.getEmail())).thenReturn(Optional.of(usuario));
         return "Bearer " + jwt.gerarToken(usuario);
+    }
+    @Test void exportaRelatoriosCsvParaUsuarioAutenticado() throws Exception {
+        var inicio = java.time.LocalDate.of(2026, 1, 1);
+        var fim = java.time.LocalDate.of(2026, 1, 31);
+        when(relatorioService.producao(usuario, inicio, fim, null)).thenReturn(List.of(
+                new RelatorioService.ProducaoDia(inicio, new java.math.BigDecimal("12.50"), 2)));
+        when(relatorioService.financeiro(usuario, inicio, fim)).thenReturn(new RelatorioService.Financeiro(
+                new java.math.BigDecimal("20.00"), new java.math.BigDecimal("5.00"), new java.math.BigDecimal("15.00")));
+        when(relatorioService.eventos(usuario, inicio, fim)).thenReturn(List.of(new RelatorioService.EventoTipo("VACINACAO", 3)));
+        String token = bearer();
+        mvc.perform(get("/api/relatorios/exportacao").header("Authorization", token).param("tipo", "PRODUCAO")
+                .param("inicio", "2026-01-01").param("fim", "2026-01-31"))
+                .andExpect(status().isOk()).andExpect(header().string("Content-Disposition", "attachment; filename=\"relatorio.csv\""))
+                .andExpect(content().string("data,litros,registros\r\n2026-01-01,12.50,2\r\n"));
+        mvc.perform(get("/api/relatorios/exportacao").header("Authorization", token).param("tipo", "FINANCEIRO")
+                .param("inicio", "2026-01-01").param("fim", "2026-01-31"))
+                .andExpect(status().isOk()).andExpect(content().string("receitas,despesas,saldo\r\n20.00,5.00,15.00\r\n"));
+        mvc.perform(get("/api/relatorios/exportacao").header("Authorization", token).param("tipo", "EVENTOS")
+                .param("inicio", "2026-01-01").param("fim", "2026-01-31"))
+                .andExpect(status().isOk()).andExpect(content().string("tipo,quantidade\r\nVACINACAO,3\r\n"));
     }
     @Test void statusPublico() throws Exception {
         mvc.perform(get("/")).andExpect(status().isOk()).andExpect(content().string("API AgroGestor funcionando"));

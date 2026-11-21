@@ -2,7 +2,7 @@ package com.agrogestor.api.controller;
 
 import com.agrogestor.api.dto.GestaoDTO;
 import com.agrogestor.api.model.RegistroGestao;
-import com.agrogestor.api.model.Usuario;
+import com.agrogestor.api.model.conta.Usuario;
 import com.agrogestor.api.service.GestaoService;
 import jakarta.validation.Valid;
 import java.time.LocalDate;

@@ -1,11 +1,11 @@
 package com.agrogestor.api.service;
 
-import com.agrogestor.api.dto.UsuarioCadastroDTO;
-import com.agrogestor.api.model.CadastroPendente;
-import com.agrogestor.api.model.Usuario;
+import com.agrogestor.api.dto.usuario.UsuarioCadastroDTO;
+import com.agrogestor.api.model.conta.CadastroPendente;
+import com.agrogestor.api.model.conta.Usuario;
 import com.agrogestor.api.repository.AnimalRepository;
-import com.agrogestor.api.repository.CadastroPendenteRepository;
-import com.agrogestor.api.repository.UsuarioRepository;
+import com.agrogestor.api.repository.conta.CadastroPendenteRepository;
+import com.agrogestor.api.repository.conta.UsuarioRepository;
 
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;

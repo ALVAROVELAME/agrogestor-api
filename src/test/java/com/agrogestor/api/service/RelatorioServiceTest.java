@@ -4,7 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 import com.agrogestor.api.model.RegistroGestao;
-import com.agrogestor.api.model.Usuario;
+import com.agrogestor.api.model.conta.Usuario;
 import com.agrogestor.api.repository.ProducaoRepository;
 import com.agrogestor.api.repository.RegistroGestaoRepository;
 import java.math.BigDecimal;
@@ -49,5 +49,15 @@ class RelatorioServiceTest {
         assertEquals(new BigDecimal("-10.00"), resultado.financeiro().saldo());
         assertEquals(3, resultado.tarefasPendentes());
         assertEquals(1, resultado.tarefasAtrasadas());
+    }
+
+    @Test
+    void agrupaEventosDoUsuarioETrataFinanceiroSemMovimentos() {
+        when(usuario.getId()).thenReturn(7L);
+        when(registros.contarPorSubtipo(7L, RegistroGestao.Tipo.EVENTO, inicio, fim))
+                .thenReturn(java.util.Collections.singletonList(new Object[]{"VACINACAO", 2L}));
+        assertEquals(List.of(new RelatorioService.EventoTipo("VACINACAO", 2)), service.eventos(usuario, inicio, fim));
+        assertEquals(BigDecimal.ZERO, service.financeiro(usuario, inicio, fim).saldo());
+        assertThrows(IllegalArgumentException.class, () -> service.eventos(usuario, null, fim));
     }
 }

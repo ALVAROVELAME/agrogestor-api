@@ -1,11 +1,11 @@
 package com.agrogestor.api.controller;
 
-import com.agrogestor.api.dto.AnimalRequestDTO;
-import com.agrogestor.api.dto.AnimalRespostaDTO;
-import com.agrogestor.api.dto.FichaAnimalDTO;
+import com.agrogestor.api.dto.animal.AnimalRequestDTO;
+import com.agrogestor.api.dto.animal.AnimalRespostaDTO;
+import com.agrogestor.api.dto.animal.FichaAnimalDTO;
 import com.agrogestor.api.model.Animal;
-import com.agrogestor.api.model.Usuario;
-import com.agrogestor.api.service.AnimalService;
+import com.agrogestor.api.model.conta.Usuario;
+import com.agrogestor.api.service.pecuaria.AnimalService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
