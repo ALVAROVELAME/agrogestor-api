@@ -45,7 +45,8 @@ class RecuperacaoSenhaServiceTest {
         Usuario usuario = new Usuario("Maria", "maria@example.com", "hash");
         usuario.ativarConta();
         usuario.iniciarRecuperacao(RecuperacaoSenhaService.hash("token"), LocalDateTime.now());
-        when(usuarios.buscarPorTokenDeRecuperacao(RecuperacaoSenhaService.hash("token"))).thenReturn(Optional.of(usuario), Optional.empty());
+        when(usuarios.buscarPorTokenDeRecuperacao(RecuperacaoSenhaService.hash("token")))
+                .thenReturn(Optional.of(usuario)).thenReturn(Optional.empty());
         when(encoder.encode("novaSenha")).thenReturn("novo-hash");
         assertThat(service.redefinir("token", "novaSenha")).isTrue();
         assertThat(usuario.getSenhaHash()).isEqualTo("novo-hash");

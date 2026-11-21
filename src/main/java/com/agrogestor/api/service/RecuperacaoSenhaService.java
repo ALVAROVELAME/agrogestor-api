@@ -1,6 +1,5 @@
 package com.agrogestor.api.service;
 
-import com.agrogestor.api.model.Usuario;
 import com.agrogestor.api.repository.UsuarioRepository;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
